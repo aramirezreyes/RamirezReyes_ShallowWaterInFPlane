@@ -1,6 +1,6 @@
-function update_convective_events!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Hx,Hy,Hz)
+function update_convective_events!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny,nghosts_x,nghosts_y)
     #@show typeof(h)
-    @inbounds for ind in CartesianIndices(isconvecting)
+    @inbounds for ind in CartesianIndices((1:Nx,1:Ny))
         if isconvecting[ind]
             ((t - convection_triggered_time[ind]) < τ_convec) && continue
             isconvecting[ind] = false
@@ -11,6 +11,10 @@ function update_convective_events!(isconvecting,convection_triggered_time,h,t,τ
             convection_triggered_time[ind] = t
         end
     end
+    isconvecting .= padarray(isconvecting[1:Nx,1:Ny], Pad(:circular, (nghosts_x,nghosts_x), (nghosts_y,nghosts_y) ))
+    convection_triggered_time .= padarray(convection_triggered_time[1:Nx,1:Ny], Pad(:circular, (nghosts_x,nghosts_x), (nghosts_y,nghosts_y) ))
+    #fill_ghosts!(isconvecting,Nx,Ny,nghosts_x,nghosts_y)
+    #fill_ghosts!(convection_triggered_time,Nx,Ny,nghosts_x,nghosts_y)
     return nothing
 end
 
@@ -35,12 +39,14 @@ function heat_at_point(i,j,k,clock,τ_c,convective_radius,isconvecting,convectio
     A0 = pi*R2
     @inbounds for neigh_y_id in (-numelements_to_traverse_y:numelements_to_traverse_y)
         y_distancesq = neigh_y_id * neigh_y_id* Δy * Δy
-        idy = nth_neighbor(j,neigh_y_id,Ny)
+        #idy = nth_neighbor(j,neigh_y_id,Ny)
+        idy = j + neigh_y_id
         @inbounds for neigh_x_id in (-numelements_to_traverse_x:numelements_to_traverse_x)
             x_distancesq = neigh_x_id * neigh_x_id * Δx * Δx
             distance_from_conv_centersq = x_distancesq + y_distancesq #takes time
             if distance_from_conv_centersq < R2
-                idx = nth_neighbor(i,neigh_x_id,Nx)
+                #idx = nth_neighbor(i,neigh_x_id,Nx)
+                idx = i + neigh_x_id
                 if isconvecting[idx , idy]
                     forcing += heat(clock.time,distance_from_conv_centersq,convection_triggered_time[idx,idy],q0,τ_c,R2,A0)
                 end
