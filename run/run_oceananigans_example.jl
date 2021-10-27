@@ -2,7 +2,7 @@ using Oceananigans
 using Oceananigans.Models: ShallowWaterModel
 using Printf
 using OffsetArrays
-using ProfileView
+#using ProfileView
 using ImageFiltering: padarray, Pad
 
 include(joinpath(@__DIR__,"../src/convectiveparameterization.jl"))
@@ -11,12 +11,13 @@ include(joinpath(@__DIR__,"../src/arrayutils.jl"))
 
 #Setup domain
 
-Lx, Ly, Lz = 1.0e5, 1.0e5, 45
+Lx, Ly = 1.0e5, 1.0e5
+const Lz = 45
 Nx, Ny = 128, 128
 
-grid = RegularRectilinearGrid(size = (Nx, Ny, 1),
-                            x = (0, Lx), y = (0, Ly), z = (0, Lz),
-                              topology = (Periodic, Periodic, Bounded))
+grid = RegularRectilinearGrid(size = (Nx, Ny),
+                            x = (0, Lx), y = (0, Ly),
+                              topology = (Periodic, Periodic, Flat))
 
 
 #Setup physicsl parameters
@@ -56,7 +57,7 @@ convec_forcing = Forcing(model_forcing,discrete_form=true,parameters=(τ_c = τ_
 
 ## Build the model
 
-model = ShallowWaterModel(
+model = ShallowWaterModel(architecture = CPU(),
     timestepper=:RungeKutta3,
     advection=WENO5(),
     grid=grid,
@@ -74,7 +75,7 @@ function h̄(x, y, z)
     if x == grid.xC[10] && y == grid.yC[10]
         return 39
     else
-        return model.grid.Lz #-  Δη * exp(-((x-Lx/2)^2/(0.1*Lx)^2 + (y-Ly/2)^2/(0.1*Ly)^2 ))
+        return Lz #-  Δη * exp(-((x-Lx/2)^2/(0.1*Lx)^2 + (y-Ly/2)^2/(0.1*Ly)^2 ))
     end
 end
 ū(x, y, z) = 0 #U * sech(y)^2
@@ -87,6 +88,12 @@ hⁱ(x, y, z) = h̄(x, y, z)
 uhⁱ(x, y, z) = 0.0 #uⁱ(x, y, z) * hⁱ(x, y, z)
 
 set!(model, uh = uhⁱ, h = hⁱ)
+
+
+
+
+
+
 function progress(sim)
     p = sim.parameters 
     update_convective_events!(p.isconvecting,p.convection_triggered_time,p.h.data,sim.model.clock.time,p.τ_c,p.h_c,
