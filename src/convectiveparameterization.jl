@@ -1,11 +1,11 @@
 function update_convective_events!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny,nghosts_x,nghosts_y)
     #@show typeof(h)
-    @inbounds for ind in CartesianIndices((1:Nx,1:Ny))
+    @inbounds for ind in eachindex(h)
         if isconvecting[ind]
             ((t - convection_triggered_time[ind]) < τ_convec) && continue
             isconvecting[ind] = false
             convection_triggered_time[ind] = 0.0
-        elseif !isconvecting[ind] && (h[ind[1], ind[2], 1 ] <= h_threshold)
+        elseif !isconvecting[ind] && (h[ind] <= h_threshold)
      #       @info "Inside "
             isconvecting[ind] = true
             convection_triggered_time[ind] = t
