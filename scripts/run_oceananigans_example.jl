@@ -1,3 +1,6 @@
+using DrWatson
+@quickactivate "RamirezReyes_ShallowWaterInFPlane"
+
 using Oceananigans
 using Oceananigans.Models: ShallowWaterModel
 using Printf
@@ -130,7 +133,7 @@ simulation.output_writers[:fields] =
     NetCDFOutputWriter(
         model,
         (ω = ω, ω_pert = ω_pert, h = h , v = v , u = u),
-          filepath = joinpath(@__DIR__, "shallow_water_Bickley_jet.nc"),
+          filepath = joinpath(@__DIR__, "../data/shallow_water_example.nc"),
           schedule = TimeInterval(1),
         mode = "c")
 
