@@ -1,3 +1,4 @@
+## This one fails on gpu because it iterates. I need to make a kernel.
 function update_convective_events!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny,nghosts_x,nghosts_y)
     #@show typeof(h)
     @inbounds for ind in eachindex(h)
@@ -16,6 +17,44 @@ function update_convective_events!(isconvecting,convection_triggered_time,h,t,τ
     #fill_ghosts!(isconvecting,Nx,Ny,nghosts_x,nghosts_y)
     #fill_ghosts!(convection_triggered_time,Nx,Ny,nghosts_x,nghosts_y)
     return nothing
+end
+
+function update_convective_events_gpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny,nghosts_x,nghosts_y)
+    #@show typeof(h)
+    
+    @inbounds for ind in eachindex(h)
+        if isconvecting[ind]
+            ((t - convection_triggered_time[ind]) < τ_convec) && continue
+            isconvecting[ind] = false
+            convection_triggered_time[ind] = 0.0
+        elseif !isconvecting[ind] && (h[ind] <= h_threshold)
+     #       @info "Inside "
+            isconvecting[ind] = true
+            convection_triggered_time[ind] = t
+        end
+    end
+    isconvecting .= padarray(isconvecting[1:Nx,1:Ny], Pad(:circular, (nghosts_x,nghosts_x), (nghosts_y,nghosts_y) ))
+    convection_triggered_time .= padarray(convection_triggered_time[1:Nx,1:Ny], Pad(:circular, (nghosts_x,nghosts_x), (nghosts_y,nghosts_y) ))
+    #fill_ghosts!(isconvecting,Nx,Ny,nghosts_x,nghosts_y)
+    #fill_ghosts!(convection_triggered_time,Nx,Ny,nghosts_x,nghosts_y)
+    return nothing
+end
+
+function update_convective_events_kernel(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold)
+    #let us assume this receives one scalar and it indices
+#    @inbounds for ind in eachindex(h)
+    ind_x
+    ind_y
+    if isconvecting[ind_x,ind_y]
+        ((t - convection_triggered_time[ind_x,ind_y]) < τ_convec) && continue
+        isconvecting[ind_x,ind_y] = false
+        convection_triggered_time[ind_x,ind_y] = 0.0
+    elseif !isconvecting[ind_x,ind_y] && (h[ind_x,ind_y] <= h_threshold)
+        #       @info "Inside "
+        isconvecting[ind_x,ind_y] = true
+        convection_triggered_time[ind_x,ind_y] = t
+    end
+end
 end
 
 
