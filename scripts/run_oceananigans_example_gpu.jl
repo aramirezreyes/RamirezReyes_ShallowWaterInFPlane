@@ -4,24 +4,15 @@ using DrWatson
 using Oceananigans
 using Oceananigans.Models: ShallowWaterModel
 using Printf
-using OffsetArrays
 using CUDA
 #using ProfileView
-using ImageFiltering: padarray, Pad
+
 
 include(joinpath(@__DIR__,"../src/convectiveparameterization.jl"))
 include(joinpath(@__DIR__,"../src/arrayutils.jl"))
 
 
-#Setup domain
-
-Lx, Ly = 1.0e5, 1.0e5
-const Lz = 45
-Nx, Ny = 128, 128
-
-grid = RegularRectilinearGrid(size = (Nx, Ny),
-                            x = (0, Lx), y = (0, Ly),
-                              topology = (Periodic, Periodic, Flat))
+architecture = GPU()
 
 
 #Setup physicsl parameters
@@ -35,20 +26,43 @@ grid = RegularRectilinearGrid(size = (Nx, Ny),
 h_c = 40
 heating_amplitude    = 1.0e9 #originally 9 for heating, -8 for cooling
 convective_radius    = 20000.0
-numelements_to_traverse_x = Int(convective_radius ÷ grid.Δx)
-numelements_to_traverse_y = Int(convective_radius ÷ grid.Δy)
+
+
+#Setup domain
+
+Lx, Ly = 1.0e5, 1.0e5
+const Lz = 45
+Nx, Ny = 128, 128
+
+grid_spacing_x = Lx ÷ Nx
+grid_spacing_y = Ly ÷ Ny
+
+numelements_to_traverse_x = Int(convective_radius ÷ grid_spacing_x)
+numelements_to_traverse_y = Int(convective_radius ÷ grid_spacing_y)
+
+
+grid = RegularRectilinearGrid(size = (Nx, Ny),
+                            x = (0, Lx), y = (0, Ly),
+                              topology = (Periodic, Periodic, Flat), halo = (max(numelements_to_traverse_x,3), max(numelements_to_traverse_y,3)))
+
+@info "Built grid successfully"
+
 
 ## convecting parameterization arrays
-isconvecting = OffsetArray(CUDA.fill(false,Nx + 2numelements_to_traverse_x, Ny + 2numelements_to_traverse_y),
-                           (-numelements_to_traverse_x + 1) : (Nx + numelements_to_traverse_x),
-                           (-numelements_to_traverse_y + 1) : (Ny + numelements_to_traverse_y)) 
-convection_triggered_time = OffsetArray(CUDA.fill(0.0f0,Nx + 2numelements_to_traverse_x, Ny + 2numelements_to_traverse_y),
-                                        (-numelements_to_traverse_x + 1) : (Nx + numelements_to_traverse_x),
-                                        (-numelements_to_traverse_y + 1) : (Ny + numelements_to_traverse_y)) 
+#isconvecting = OffsetArray(CUDA.fill(false,Nx + 2numelements_to_traverse_x, Ny + 2numelements_to_traverse_y),
+#                           (-numelements_to_traverse_x + 1) : (Nx + numelements_to_traverse_x),
+#                           (-numelements_to_traverse_y + 1) : (Ny + numelements_to_traverse_y)) 
+#convection_triggered_time = OffsetArray(CUDA.fill(0.0f0,Nx + 2numelements_to_traverse_x, Ny + 2numelements_to_traverse_y),
+#                                        (-numelements_to_traverse_x + 1) : (Nx + numelements_to_traverse_x),
+#                                        (-numelements_to_traverse_y + 1) : (Ny + numelements_to_traverse_y))
+
+isconvecting  = CenterField(architecture, grid)
+convection_triggered_time  = CenterField(architecture, grid)
+
 #isconvecting[10,10] = true
 #convection_triggered_time[10,10] = 0.0
 #build forcing
-convec_forcing = Forcing(model_forcing,discrete_form=true,parameters=(τ_c = τ_c,
+convec_forcing = Forcing(model_forcing_gpu,discrete_form=true,parameters=(τ_c = τ_c,
                                                                       h_c = h_c,
                                                                       isconvecting = isconvecting,
                                                                       convection_triggered_time = convection_triggered_time,
@@ -61,7 +75,7 @@ convec_forcing = Forcing(model_forcing,discrete_form=true,parameters=(τ_c = τ_
 
 ## Build the model
 
-model = ShallowWaterModel(architecture = GPU(),
+model = ShallowWaterModel(;architecture,
     timestepper=:RungeKutta3,
     advection=WENO5(),
     grid=grid,
@@ -99,9 +113,14 @@ set!(model, uh = uhⁱ, h = hⁱ)
 
 
 function progress(sim)
-    p = sim.parameters 
-    update_convective_events_gpu!(p.isconvecting,p.convection_triggered_time,p.h.data,sim.model.clock.time,p.τ_c,p.h_c,
-                              sim.model.grid.Nx,sim.model.grid.Ny, p.nghosts_x,p.nghosts_y)
+    p = sim.parameters
+    #@info "Go run update_...!"
+    @cuda update_convective_events_gpu!(p.isconvecting,p.convection_triggered_time,p.h.data,sim.model.clock.time,p.τ_c,p.h_c,
+                                  sim.model.grid.Nx,sim.model.grid.Ny, p.nghosts_x,p.nghosts_y)
+    Oceananigans.BoundaryConditions.fill_halo_regions!(p.isconvecting, architecture)
+    Oceananigans.BoundaryConditions.fill_halo_regions!(p.convection_triggered_time, architecture)
+    #display(Array(p.convection_triggered_time.data.parent))
+    #display(Array(p.isconvecting.data.parent))
     if sim.model.clock.iteration % 20 == 0
         @info(@sprintf("Iter: %d, time: %.1f, Δt: %.3f, max|h|: %.2f",
                        sim.model.clock.iteration, sim.model.clock.time,
