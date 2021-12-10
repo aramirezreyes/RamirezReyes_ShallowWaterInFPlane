@@ -60,7 +60,7 @@ convec_forcing = Forcing(model_forcing,discrete_form=true,parameters=(τ_c = τ_
 
 ## Build the model
 
-model = ShallowWaterModel(architecture = CPU(),
+model = ShallowWaterModel(architecture = architecture,
     timestepper=:RungeKutta3,
     advection=WENO5(),
     grid=grid,
@@ -99,7 +99,7 @@ set!(model, uh = uhⁱ, h = hⁱ)
 
 function progress(sim)
     p = sim.parameters 
-    update_convective_events!(p.isconvecting,p.convection_triggered_time,p.h.data,sim.model.clock.time,p.τ_c,p.h_c,
+    update_convective_events!(p.architectur,p.isconvecting,p.convection_triggered_time,p.h.data,sim.model.clock.time,p.τ_c,p.h_c,
                               sim.model.grid.Nx,sim.model.grid.Ny, p.nghosts_x,p.nghosts_y)
     if sim.model.clock.iteration % 20 == 0
         @info(@sprintf("Iter: %d, time: %.1f, Δt: %.3f, max|h|: %.2f",
