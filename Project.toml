@@ -3,7 +3,7 @@ authors = ["Argel Ramirez Reyes"]
 
 [deps]
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
-GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 ImageFiltering = "6a3955dd-da59-5b1f-98d4-e7296123deb5"
 NCDatasets = "85f8d34a-cbdd-5861-8df4-14fed0d494ab"
 Oceananigans = "9e8cae18-63c1-5223-a75c-80ca9d6e9a09"
