@@ -62,9 +62,8 @@ convec_forcing = Forcing(model_forcing,discrete_form=true,parameters=(;architect
 
 ## Build the model
 
-model = ShallowWaterModel(;architecture,
-    timestepper=:RungeKutta3,
-    advection=WENO5(),
+model = ShallowWaterModel(;timestepper=:RungeKutta3,
+    advection=WENO5(grid=grid),
     grid=grid,
     gravitational_acceleration=g,
     coriolis=FPlane(f=f),
