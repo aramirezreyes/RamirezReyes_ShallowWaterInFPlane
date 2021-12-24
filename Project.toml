@@ -4,8 +4,10 @@ authors = ["Argel Ramirez Reyes"]
 [deps]
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+DrWatson = "634d3b9d-ee7a-5ddf-bec9-22491ea816e1"
 ImageFiltering = "6a3955dd-da59-5b1f-98d4-e7296123deb5"
 NCDatasets = "85f8d34a-cbdd-5861-8df4-14fed0d494ab"
+NetCDF = "30363a11-5582-574a-97bb-aa9a979735b9"
 Oceananigans = "9e8cae18-63c1-5223-a75c-80ca9d6e9a09"
 OffsetArrays = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
 Polynomials = "f27b6e38-b328-58d1-80ce-0feddd5e7a45"
@@ -13,3 +15,4 @@ Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [compat]
 julia = "^1.6"
+NetCDF = "^0.11"
