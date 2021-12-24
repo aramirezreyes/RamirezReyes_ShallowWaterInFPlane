@@ -39,7 +39,7 @@ numelements_to_traverse_x = Int(convective_radius ÷ grid_spacing_x)
 numelements_to_traverse_y = Int(convective_radius ÷ grid_spacing_y)
 
 
-grid = RegularRectilinearGrid(size = (Nx, Ny),
+grid = RectilinearGrid(size = (Nx, Ny),
                             x = (0, Lx), y = (0, Ly),
                               topology = (Periodic, Periodic, Flat), halo = (max(numelements_to_traverse_x,3), max(numelements_to_traverse_y,3)))
 
