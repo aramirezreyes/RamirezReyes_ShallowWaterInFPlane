@@ -83,7 +83,8 @@ function heat_at_point(i,j,k,clock,τ_c,convective_radius,isconvecting,convectio
 end
 
 
-damping(x, y, z, t, variable, relaxation_parameter) = - variable * relaxation_parameter
+u_damping(x, y, z, t, u, relaxation_parameter) = - u * relaxation_parameter
+v_damping(x, y, z, t, v, relaxation_parameter) = - v * relaxation_parameter
 
 
 function model_forcing(i,j,k,grid,clock,model_fields,parameters)
@@ -99,7 +100,7 @@ function model_forcing(i,j,k,grid,clock,model_fields,parameters)
                       grid.Ny,
                       parameters.nghosts_x,
                       parameters.nghosts_y,
-                      ) - parameters.radiative_cooling_rate - model_fields.h*parameters.relaxation_parameter
+                      ) - parameters.radiative_cooling_rate - model_fields.h[i,j,k]*parameters.relaxation_parameter
 end
 
 # function model_forcing_gpu(i,j,k,grid,clock,model_fields,parameters)
