@@ -99,7 +99,7 @@ function model_forcing(i,j,k,grid,clock,model_fields,parameters)
                       grid.Ny,
                       parameters.nghosts_x,
                       parameters.nghosts_y,
-                      ) - parameters.radiative_cooling_rate
+                      ) - parameters.radiative_cooling_rate - model_fields.h*parameters.relaxation_parameter
 end
 
 # function model_forcing_gpu(i,j,k,grid,clock,model_fields,parameters)
