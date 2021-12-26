@@ -93,12 +93,12 @@ function model_forcing(i,j,k,grid,clock,model_fields,parameters)
                       parameters.isconvecting,
                       parameters.convection_triggered_time,
                       parameters.q0,
-                      grid.Δx,
-                      grid.Δy,
+                      grid.Δxᶜᵃᵃ,
+                      grid.Δyᵃᶜᵃ,
                       grid.Nx,
                       grid.Ny,
-                      parameters.numelements_to_traverse_x,
-                      parameters.numelements_to_traverse_y,
+                      parameters.nghosts_x,
+                      parameters.nghosts_y,
                       ) - parameters.radiative_cooling_rate
 end
 
