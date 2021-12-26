@@ -15,7 +15,7 @@ include(joinpath(@__DIR__,"../src/arrayutils.jl"))
 architecture = GPU()
 #Setup physicsl parameters
 
-f = 5e-4 #5e-4
+f = 0.0#5e-4 #5e-4
 g = 9.8# 9.8
 U = 50.0
 Δη =  5.5#f * U / g
@@ -25,7 +25,7 @@ h_c = 40
 heating_amplitude    = 1.0e9#1.0e9 #originally 9 for heating, -8 for cooling
 radiative_cooling_rate = 1.0e-8
 convective_radius    = 20000.0
-relaxation_parameter = -1.0/3600.0
+relaxation_parameter = 0#1.0/3600.0
 
 #Setup domain
 
@@ -54,8 +54,8 @@ parameters = (; isconvecting = isconvecting, convection_triggered_time, τ_c, h_
 
 #build forcing
 convec_forcing = Forcing(model_forcing,discrete_form=true,parameters = parameters)
-u_forcing = Forcing(damping, parameters=relaxation_parameter, field_dependencies=:u)
-v_forcing = Forcing(damping, parameters=relaxation_parameter, field_dependencies=:v)
+u_forcing = Forcing(u_damping, parameters=relaxation_parameter, field_dependencies=:u)
+v_forcing = Forcing(v_damping, parameters=relaxation_parameter, field_dependencies=:v)
 
 ## Build the model
 
@@ -64,7 +64,7 @@ model = ShallowWaterModel(;timestepper=:RungeKutta3,
     grid=grid,
     gravitational_acceleration=g,
     coriolis=FPlane(f=f),
-    forcing=(h=convec_forcing,u=u_forcing,v=v_forcing)
+    forcing=(h=convec_forcing,u = u_forcing, v = v_forcing)
 )
 
 
