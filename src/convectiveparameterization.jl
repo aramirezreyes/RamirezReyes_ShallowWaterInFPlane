@@ -83,7 +83,7 @@ function heat_at_point(i,j,k,clock,τ_c,convective_radius,isconvecting,convectio
 end
 
 
-
+damping(x, y, z, t, variable, relaxation_parameter) = - variable * relaxation_parameter
 
 
 function model_forcing(i,j,k,grid,clock,model_fields,parameters)
