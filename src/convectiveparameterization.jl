@@ -1,14 +1,14 @@
-function update_convective_events!(architecture :: CPU,isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny,nghosts_x,nghosts_y)
-    update_convective_events_cpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny,nghosts_x,nghosts_y)
+function update_convective_events!(architecture :: CPU,isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
+    update_convective_events_cpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
 end
 
 
-function update_convective_events!(architecture :: GPU,isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny,nghosts_x,nghosts_y)
-    @cuda update_convective_events_gpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny,nghosts_x,nghosts_y)
+function update_convective_events!(architecture :: GPU,isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
+    @cuda update_convective_events_gpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
 end
 
 ## This one fails on gpu because it iterates. I need to make a kernel.
-function update_convective_events_cpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny,nghosts_x,nghosts_y)
+function update_convective_events_cpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
     @inbounds for ind in eachindex(h)
         if isconvecting[ind] == 1.0
             ((t - convection_triggered_time[ind]) < τ_convec) && continue
@@ -22,7 +22,7 @@ function update_convective_events_cpu!(isconvecting,convection_triggered_time,h,
     return nothing
 end
 
-function update_convective_events_gpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny,nghosts_x,nghosts_y)
+function update_convective_events_gpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
     #@show typeof(h)
 
     index_x = (blockIdx().x - 1) * blockDim().x + threadIdx().x

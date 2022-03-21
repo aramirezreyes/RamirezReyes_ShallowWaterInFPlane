@@ -1,4 +1,4 @@
 using Test
-include("../src/convectiveparameterization.jl")
-
+using RamirezReyes_ShallowWaterInFPlane
+using Oceananigans: CPU, GPU
 include("convectiveparameterization.jl")
