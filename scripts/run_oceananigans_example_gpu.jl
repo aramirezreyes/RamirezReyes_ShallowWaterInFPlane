@@ -5,11 +5,12 @@ using Oceananigans
 using Oceananigans.Models: ShallowWaterModel
 using Printf
 using CUDA
+using RamirezReyes_ShallowWaterInFPlane: update_convective_events!, model_forcing, u_damping, v_damping
 #using ProfileView
 
 
-include(joinpath(@__DIR__,"../src/convectiveparameterization.jl"))
-include(joinpath(@__DIR__,"../src/arrayutils.jl"))
+#include(joinpath(@__DIR__,"../src/convectiveparameterization.jl"))
+#include(joinpath(@__DIR__,"../src/arrayutils.jl"))
 
 
 architecture = GPU()
@@ -70,7 +71,7 @@ model = ShallowWaterModel(;timestepper=:RungeKutta3,
 
 #Build background state and perturbations
 
-#h̄(x, y, z) = model.grid.Lz +  Δη * tanh(y/Ly)*tanh(x/Lx)
+#h̄(x, y, z) = Lz +  Δη * tanh(y/Ly)*tanh(x/Lx)
 #h̄(x, y, z) = model.grid.Lz -  Δη * exp(-((x-Lx/2)^2/(0.1*Lx)^2 + (y-Ly/2)^2/(0.1*Ly)^2 ))
 function h̄(x, y, z)
     if x == grid.xᶜᵃᵃ[10] && y == grid.yᵃᶜᵃ[10]
