@@ -1,6 +1,7 @@
 module RamirezReyes_ShallowWaterInFPlane
 
-using Oceananigans: CPU, GPU, @cuda
+using Oceananigans: CPU, GPU
+using CUDA: @cuda
 include(joinpath(@__DIR__,"../src/convectiveparameterization.jl"))
 include(joinpath(@__DIR__,"../src/arrayutils.jl"))
 
