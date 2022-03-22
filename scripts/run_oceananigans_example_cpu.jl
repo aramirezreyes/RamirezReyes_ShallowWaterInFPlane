@@ -26,8 +26,8 @@ h_c = 40
 heating_amplitude    = 1.0e9#1.0e9 #originally 9 for heating, -8 for cooling
 radiative_cooling_rate = 1.0e-8
 convective_radius    = 20000.0
-relaxation_parameter = 0#1.0/3600.0
-
+relaxation_parameter = 1.0/3600.0
+relaxation_height = 38
 #Setup domain
 
 Lx, Ly = 1.0e5, 1.0e5
@@ -49,7 +49,7 @@ grid = RectilinearGrid(size = (Nx, Ny),
 isconvecting  = CenterField(grid,Bool)
 convection_triggered_time  = CenterField(grid)
 
-parameters = (; isconvecting = isconvecting, convection_triggered_time, τ_c, h_c, nghosts_x = numelements_to_traverse_x, nghosts_y = numelements_to_traverse_y, radiative_cooling_rate , q0 = heating_amplitude, R = convective_radius, relaxation_parameter)
+parameters = (; isconvecting = isconvecting, convection_triggered_time, τ_c, h_c, nghosts_x = numelements_to_traverse_x, nghosts_y = numelements_to_traverse_y, radiative_cooling_rate , q0 = heating_amplitude, R = convective_radius, relaxation_parameter, relaxation_height)
 
 
 #build forcing
@@ -141,7 +141,7 @@ simulation.callbacks[:update_convective_helper_arrays] = Callback(update_convect
  simulation.output_writers[:fields] =
      NetCDFOutputWriter(
          model,
-         (ω = ω, ω_pert = ω′, h = h , v = v , u = u),
+         (h = h , v = v , u = u, isconvecting = isconvecting),
            filepath = joinpath(@__DIR__, "../data/shallow_water_example_cpu.nc"),
            schedule = TimeInterval(1),
          mode = "c")
