@@ -32,15 +32,12 @@ function update_convective_events_gpu!(isconvecting,convection_triggered_time,h,
     
     @inbounds for i in index_x:stride_x:Nx
         for j in index_y:stride_y:Ny
-            if isconvecting[i, j] == 1.0
-                time_convecting = t - convection_triggered_time[i,j]
-                isconvecting[i,j] = (time_convecting < τ_convec)
-                convection_triggered_time[i, j] = 0.0
-             
-            elseif (isconvecting[i, j] == 0.0) && (h[i, j] <= h_threshold)
-                isconvecting[i, j] = 1.0
-                convection_triggered_time[i, j] = t
-            end        
+            time_convecting = t - convection_triggered_time[i,j]
+            needs_to_convect_by_time = isconvecting[i,j] && (time_convecting < τ_convec) #has been convecting less than τ_c?
+            needs_to_convect_by_height = (h[i,j] <= h_threshold)
+            will_start_convecting = needs_to_convect_by_height && iszero(needs_to_convect_by_time) #time needs be updated?
+            isconvecting[i,j] = needs_to_convect_by_time || needs_to_convect_by_height 
+            will_start_convecting && (convection_triggered_time[i,j] = t) #Update time only if new convective event
         end
     end
     
