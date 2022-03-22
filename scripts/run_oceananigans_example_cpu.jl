@@ -46,9 +46,8 @@ grid = RectilinearGrid(size = (Nx, Ny),
                               topology = (Periodic, Periodic, Flat), halo = (max(numelements_to_traverse_x,3), max(numelements_to_traverse_y,3)))
 
 @info "Built grid successfully"
-
-isconvecting  = CenterField(architecture, grid)
-convection_triggered_time  = CenterField(architecture, grid)
+isconvecting  = CenterField(grid,Bool)
+convection_triggered_time  = CenterField(grid)
 
 parameters = (; isconvecting = isconvecting, convection_triggered_time, τ_c, h_c, nghosts_x = numelements_to_traverse_x, nghosts_y = numelements_to_traverse_y, radiative_cooling_rate , q0 = heating_amplitude, R = convective_radius, relaxation_parameter)
 
@@ -91,12 +90,24 @@ uhⁱ(x, y, z) = 0.0 #uⁱ(x, y, z) * hⁱ(x, y, z)
 
 uh, vh, h = model.solution
 
-        u = ComputedField(uh / h)
-        v = ComputedField(vh / h)
-        ω = ComputedField(∂x(v) - ∂y(u))
-ω_pert = ComputedField(ω - ω̄)
+## Build velocities
+u = uh / h
+v = vh / h
 
-set!(model, uh = uhⁱ, h = hⁱ)
+## Build and compute mean vorticity discretely
+ω = Field(∂x(v) - ∂y(u))
+compute!(ω)
+
+## Copy mean vorticity to a new field
+ωⁱ = Field{Face, Face, Nothing}(model.grid)
+ωⁱ .= ω
+
+## Use this new field to compute the perturbation vorticity
+ω′ = Field(ω - ωⁱ)
+
+# and finally set the "true" initial condition with noise,
+
+set!(model, uh = uhⁱ, h = h̄)
 
 
 #Create the simulation
@@ -108,7 +119,7 @@ function update_convective_helper_arrays(sim, parameters = parameters)
     #@info "Go run update_...!"
     m = sim.model
     update_convective_events!(m.architecture,p.isconvecting,p.convection_triggered_time,m.solution.h,
-                              m.clock.time,p.τ_c,p.h_c,m.grid.Nx,m.grid.Ny, p.nghosts_x,p.nghosts_y)
+                              m.clock.time,p.τ_c,p.h_c,m.grid.Nx,m.grid.Ny)
     Oceananigans.BoundaryConditions.fill_halo_regions!(p.isconvecting, m.architecture)
     Oceananigans.BoundaryConditions.fill_halo_regions!(p.convection_triggered_time, m.architecture)
     #display(Array(p.convection_triggered_time.data.parent))
@@ -130,7 +141,7 @@ simulation.callbacks[:update_convective_helper_arrays] = Callback(update_convect
  simulation.output_writers[:fields] =
      NetCDFOutputWriter(
          model,
-         (ω = ω, ω_pert = ω_pert, h = h , v = v , u = u),
+         (ω = ω, ω_pert = ω′, h = h , v = v , u = u),
            filepath = joinpath(@__DIR__, "../data/shallow_water_example_cpu.nc"),
            schedule = TimeInterval(1),
          mode = "c")
