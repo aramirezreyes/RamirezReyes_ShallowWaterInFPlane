@@ -1,13 +1,35 @@
+"""
+    update_convective_events!(architecture,isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
+Use the parameters τ_convec (field of times since last convective event started) and h_threshold to determine if one point should convect.
+The version that receives architecture as first parameter is an interface for the specific implementation.
+
+Based on:
+Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and the MJO: A Shallow-Water Model. J. Atmos. Sci., 70, 2476–2486, https://doi.org/10.1175/JAS-D-12-0255.1.
+"""
 function update_convective_events!(architecture :: CPU,isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
     update_convective_events_cpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
 end
 
+"""
+    update_convective_events!(architecture,isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
+Use the parameters τ_convec (field of times since last convective event started) and h_threshold to determine if one point should convect.
+The version that receives architecture as first parameter is an interface for the specific implementation.
 
+Based on:
+Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and the MJO: A Shallow-Water Model. J. Atmos. Sci., 70, 2476–2486, https://doi.org/10.1175/JAS-D-12-0255.1.
+"""
 function update_convective_events!(architecture :: GPU,isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
     @cuda update_convective_events_gpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
 end
 
-## Currently failing. Need to find a way to make the isconvecting field a bool
+"""
+    update_convective_events_cpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
+Use the parameters τ_convec (field of times since last convective event started) and h_threshold to determine if one point should convect.
+The version contains the implementation for CPU.
+
+Based on:
+Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and the MJO: A Shallow-Water Model. J. Atmos. Sci., 70, 2476–2486, https://doi.org/10.1175/JAS-D-12-0255.1.
+"""
 @inline function update_convective_events_cpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
      @inbounds Threads.@threads for ind in eachindex(h)
         time_convecting = t - convection_triggered_time[ind]
@@ -20,6 +42,14 @@ end
     return nothing
 end
 
+"""
+    update_convective_events_gpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
+Use the parameters τ_convec (field of times since last convective event started) and h_threshold to determine if one point should convect.
+The version contains the implementation for GPU using CUDA.
+
+Based on:
+Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and the MJO: A Shallow-Water Model. J. Atmos. Sci., 70, 2476–2486, https://doi.org/10.1175/JAS-D-12-0255.1.
+"""
 function update_convective_events_gpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
     #@show typeof(h)
 
@@ -44,6 +74,13 @@ function update_convective_events_gpu!(isconvecting,convection_triggered_time,h,
     return nothing
 end
 
+"""
+    heat(t,distance_from_conv_centersq,conv_time_triggered,q0,τ_c,R2,A0)
+For a point that will be heated by convection, compute the value of the convective mass source.
+
+Based on:
+Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and the MJO: A Shallow-Water Model. J. Atmos. Sci., 70, 2476–2486, https://doi.org/10.1175/JAS-D-12-0255.1.
+"""
 @inline function heat(t,distance_from_conv_centersq,conv_time_triggered,q0,τ_c,R2,A0)
     deltat   = t - conv_time_triggered
     quotient = 2.0 * (deltat - τ_c/2.0)/(τ_c)
@@ -51,8 +88,18 @@ end
     return  q / (τ_c*A0)
 end
 
+"""
+    nth_neighbor(i,n,N) = mod1(i + n,N)
+Tells you the index of your nth neighbor considering periodic boundaries.
+"""
 @inline nth_neighbor(i,n,N) = mod1(i + n,N)
 
+"""
+    heat_at_point(i,j,k,clock,τ_c,convective_radius,isconvecting,convection_triggered_time,q0,Δx,Δy,Nx,Ny,numelements_to_traverse_x,numelements_to_traverse_y)
+    Centered on each point it will traverese a square of numelements_to_traverse_y * numelements_to_traverse_y. If one of those neighbors are a convective center, it will heat the current point with the rules shown in:
+
+Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and the MJO: A Shallow-Water Model. J. Atmos. Sci., 70, 2476–2486, https://doi.org/10.1175/JAS-D-12-0255.1.
+"""
 function heat_at_point(i,j,k,clock,τ_c,convective_radius,isconvecting,convection_triggered_time,q0,Δx,Δy,Nx,Ny,numelements_to_traverse_x,numelements_to_traverse_y)
     forcing = 0.0
     R2 = convective_radius * convective_radius
@@ -76,11 +123,23 @@ function heat_at_point(i,j,k,clock,τ_c,convective_radius,isconvecting,convectio
     return forcing
 end
 
-
+"""
+    u_damping(x, y, z, t, u, relaxation_parameter) = - u * relaxation_parameter
+Create a linear damping function for the u field
+"""
 u_damping(x, y, z, t, u, relaxation_parameter) = - u * relaxation_parameter
+
+"""
+    v_damping(x, y, z, t, v, relaxation_parameter) = - v * relaxation_parameter
+Create a linear damping function for the v field
+"""
 v_damping(x, y, z, t, v, relaxation_parameter) = - v * relaxation_parameter
 
-
+"""
+    model_forcing(i,j,k,grid,clock,model_fields,parameters)
+This is an interface with the correct signature to register the convective parameterization to Oceananigans.jl
+It also adds the radiative cooling and the relaxation in the height field with a given timescale.
+"""
 function model_forcing(i,j,k,grid,clock,model_fields,parameters)
     heat_at_point(i,j,k,clock,
                       parameters.τ_c,
@@ -94,22 +153,6 @@ function model_forcing(i,j,k,grid,clock,model_fields,parameters)
                       grid.Ny,
                       parameters.nghosts_x,
                       parameters.nghosts_y,
-                      ) - parameters.radiative_cooling_rate - model_fields.h[i,j,k]*parameters.relaxation_parameter
+                      ) - parameters.radiative_cooling_rate - (model_fields.h[i,j,k] - parameters.relaxation_height)*parameters.relaxation_parameter
 end
 
-# function model_forcing_gpu(i,j,k,grid,clock,model_fields,parameters)
-#     forcing =  heat_at_point_gpu(i,j,k,clock,
-#                        parameters.τ_c,
-#                        parameters.R,
-#                        parameters.isconvecting,
-#                        parameters.convection_triggered_time,
-#                              parameters.q0,
-#                              grid.Δx,
-#                              grid.Δy,
-#                              grid.Nx,
-#                              grid.Ny,
-#                              parameters.numelements_to_traverse_x,
-#                              parameters.numelements_to_traverse_y,
-#                       )
-
-# end
