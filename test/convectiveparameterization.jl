@@ -27,9 +27,14 @@ clock = TestClock(t2)
     update_convective_events!(CPU(),isconvecting,convection_triggered_time,h,t2,τ_c,h_c,0,0) #should keep everying the same
     @test only(findall(isconvecting)) == CartesianIndex(5,5) #should still convect
     @test convection_triggered_time[5,5] == t1 #time not modified
-    update_convective_events!(CPU(),isconvecting,convection_triggered_time,h,t3,τ_c,h_c,0,0) #should not convect anymore
+    update_convective_events!(CPU(),isconvecting,convection_triggered_time,h,t3,τ_c,h_c,0,0) #should start new convective event because height is still below the threshold
+    @test only(findall(==(1.0),isconvecting)) == CartesianIndex(5, 5)
+    @test t3 ≈ convection_triggered_time[5,5] #new convective event started
+    h .= 40.5
+    convection_triggered_time[5,5] = 0.0 #let's imagine it started convecting a long time ago
+    update_convective_events!(CPU(),isconvecting,convection_triggered_time,h,t3,τ_c,h_c,0,0) #should convect because height is still below the threshold
     @test isempty(findall(isconvecting)) #nothing convecting
-    @test convection_triggered_time[5,5] == 0 #time reset
+    @test t3 - convection_triggered_time[5,5] > τ_c #time since last convection start still greater than what is alloweble
 end
 
 

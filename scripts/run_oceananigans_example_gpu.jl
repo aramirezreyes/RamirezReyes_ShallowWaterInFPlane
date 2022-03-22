@@ -108,7 +108,7 @@ function update_convective_helper_arrays(sim, parameters = parameters)
     #@info "Go run update_...!"
     m = sim.model
     update_convective_events!(m.architecture,p.isconvecting,p.convection_triggered_time,m.solution.h,
-                              m.clock.time,p.τ_c,p.h_c,m.grid.Nx,m.grid.Ny, p.nghosts_x,p.nghosts_y)
+                              m.clock.time,p.τ_c,p.h_c,m.grid.Nx,m.grid.Ny)
     Oceananigans.BoundaryConditions.fill_halo_regions!(p.isconvecting, m.architecture)
     Oceananigans.BoundaryConditions.fill_halo_regions!(p.convection_triggered_time, m.architecture)
     #display(Array(p.convection_triggered_time.data.parent))

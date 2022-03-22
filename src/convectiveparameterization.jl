@@ -7,17 +7,15 @@ function update_convective_events!(architecture :: GPU,isconvecting,convection_t
     @cuda update_convective_events_gpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
 end
 
-## This one fails on gpu because it iterates. I need to make a kernel.
-function update_convective_events_cpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
-    @inbounds for ind in eachindex(h)
-        if isconvecting[ind] == 1.0
-            ((t - convection_triggered_time[ind]) < τ_convec) && continue
-            isconvecting[ind] = 0.0
-            convection_triggered_time[ind] = 0.0
-        elseif (isconvecting[ind] == 0.0) && (h[ind] <= h_threshold)
-            isconvecting[ind] = 1.0
-            convection_triggered_time[ind] = t
-        end
+## Currently failing. Need to find a way to make the isconvecting field a bool
+@inline function update_convective_events_cpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
+     @inbounds Threads.@threads for ind in eachindex(h)
+        time_convecting = t - convection_triggered_time[ind]
+        needs_to_convect_by_time = isconvecting[ind] && (time_convecting < τ_convec) #has been convecting less than τ_c?
+        needs_to_convect_by_height = (h[ind] <= h_threshold)
+        will_start_convecting = needs_to_convect_by_height && iszero(needs_to_convect_by_time) #time needs be updated?
+        isconvecting[ind] = needs_to_convect_by_time || needs_to_convect_by_height 
+        will_start_convecting && (convection_triggered_time[ind] = t) #Update time only if new convective event
     end
     return nothing
 end
@@ -34,11 +32,10 @@ function update_convective_events_gpu!(isconvecting,convection_triggered_time,h,
     
     @inbounds for i in index_x:stride_x:Nx
         for j in index_y:stride_y:Ny
-           if isconvecting[i, j] == 1.0
-             ((t - convection_triggered_time[i, j]) < τ_convec) && continue
-             
-                   isconvecting[i, j] = 0.0
-                   convection_triggered_time[i, j] = 0.0
+            if isconvecting[i, j] == 1.0
+                time_convecting = t - convection_triggered_time[i,j]
+                isconvecting[i,j] = (time_convecting < τ_convec)
+                convection_triggered_time[i, j] = 0.0
              
             elseif (isconvecting[i, j] == 0.0) && (h[i, j] <= h_threshold)
                 isconvecting[i, j] = 1.0
