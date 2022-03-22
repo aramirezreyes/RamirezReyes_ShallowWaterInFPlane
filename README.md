@@ -9,8 +9,13 @@ On the Shallow Water model of Oceananigans.jl. It is currently supposed to work 
 To see usage see scripts/run_oceananigans_example_gpu.jl and scripts/run_oceananigans_example_gpu.jl
 
 It relies in:
-- Oceananigans.jl for the model.
+- Oceananigans.jl for the model
 - DrWatson.jl for the experiment management
+
+It currently includes:
+- f plane
+- gravity
+- convection
 
 
 This is experimental work carried out at the University of California Davis by Argel Ram\'irez Reyes
