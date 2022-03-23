@@ -1,10 +1,6 @@
 using DrWatson
 @quickactivate "RamirezReyes_ShallowWaterInFPlane"
 
-using Oceananigans
-using Oceananigans.Models: ShallowWaterModel
-using Printf
-using CUDA
 using RamirezReyes_ShallowWaterInFPlane: update_convective_events!, model_forcing, u_damping, v_damping
 #using ProfileView
 
