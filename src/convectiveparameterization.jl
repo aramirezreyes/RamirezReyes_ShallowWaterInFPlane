@@ -104,10 +104,9 @@ Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and th
     forcing = 0.0
     @inbounds for neigh_j in (-numelements_to_traverse:numelements_to_traverse)
         @inbounds for neigh_i in (-numelements_to_traverse:numelements_to_traverse)
-            forcing += ifelse( isconvecting[i + neigh_i , j + neigh_j],
-                               heat(current_time,convection_triggered_time[i + neigh_i,j + neigh_j],τc,heating_stencil[-neigh_i,-neigh_j]),
-                               0.0)
-
+             if isconvecting[i + neigh_i , j + neigh_j]
+                 forcing += heat(current_time,convection_triggered_time[i + neigh_i,j + neigh_j],τc,heating_stencil[-neigh_i,-neigh_j])
+             end
         end
     end 
     return forcing
