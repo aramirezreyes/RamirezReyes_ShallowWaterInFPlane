@@ -1,17 +1,10 @@
 using DrWatson
 @quickactivate "RamirezReyes_ShallowWaterInFPlane"
 
+using RamirezReyes_ShallowWaterInFPlane: update_convective_events!, model_forcing, u_damping, v_damping, fill_heating_stencil!
 using Oceananigans
-using Oceananigans.Models: ShallowWaterModel
 using Printf
-using CUDA
-using RamirezReyes_ShallowWaterInFPlane: update_convective_events!, model_forcing, u_damping, v_damping
 #using ProfileView
-
-
-#include(joinpath(@__DIR__,"../src/convectiveparameterization.jl"))
-#include(joinpath(@__DIR__,"../src/arrayutils.jl"))
-
 
 architecture = GPU()
 #Setup physicsl parameters
@@ -26,30 +19,33 @@ h_c = 40
 heating_amplitude    = 1.0e9#1.0e9 #originally 9 for heating, -8 for cooling
 radiative_cooling_rate = 1.0e-8
 convective_radius    = 20000.0
-relaxation_parameter = 0#1.0/3600.0
-
+relaxation_parameter = 1.0/3600.0
+relaxation_height = 38
 #Setup domain
 
 Lx, Ly = 1.0e5, 1.0e5
 const Lz = 45
 Nx, Ny = 128, 128
 
-grid_spacing_x = Lx ÷ Nx
+grid_spacing_x = Lx ÷ Nx #These two need to be equal for x and y!
 grid_spacing_y = Ly ÷ Ny
 
-numelements_to_traverse_x = Int(convective_radius ÷ grid_spacing_x)
-numelements_to_traverse_y = Int(convective_radius ÷ grid_spacing_y)
-
+numelements_to_traverse = Int(convective_radius ÷ grid_spacing_x)
+halo_indices = numelements_to_traverse-1
 
 grid = RectilinearGrid(size = (Nx, Ny),
                             x = (0, Lx), y = (0, Ly),
-                              topology = (Periodic, Periodic, Flat), halo = (max(numelements_to_traverse_x,3), max(numelements_to_traverse_y,3)))
+                              topology = (Periodic, Periodic, Flat), halo = (max(numelements_to_traverse,3), max(numelements_to_traverse,3)))
 
 @info "Built grid successfully"
 isconvecting  = CenterField(grid,Bool)
 convection_triggered_time  = CenterField(grid)
+## Will create heating stencil with the spatial component
+q_stencil = CenterField(grid,Float64; indices=(-halo_indices:halo_indices,-halo_indices:halo_indices,:))
 
-parameters = (; isconvecting = isconvecting, convection_triggered_time, τ_c, h_c, nghosts_x = numelements_to_traverse_x, nghosts_y = numelements_to_traverse_y, radiative_cooling_rate , q0 = heating_amplitude, R = convective_radius, relaxation_parameter)
+fill_heating_stencil!(q_stencil,heating_amplitude,grid_spacing_x,convective_radius^2)
+
+parameters = (; isconvecting = isconvecting, convection_triggered_time, τ_c, h_c, nghosts = numelements_to_traverse - 1, radiative_cooling_rate , q0 = heating_amplitude, R = convective_radius, relaxation_parameter, relaxation_height, Δx2 = grid_spacing_x^2, Δy2 = grid_spacing_y^2, heating_stencil = q_stencil)
 
 
 #build forcing
@@ -135,15 +131,16 @@ function progress(sim)
     
 end
 
-simulation.callbacks[:progress] = Callback(progress, IterationInterval(1))
+simulation.callbacks[:progress] = Callback(progress, IterationInterval(100))
 simulation.callbacks[:update_convective_helper_arrays] = Callback(update_convective_helper_arrays, IterationInterval(1))
 #prepare output files
  simulation.output_writers[:fields] =
      NetCDFOutputWriter(
          model,
-         (ω = ω, ω_pert = ω′, h = h , v = v , u = u),
-           filepath = joinpath(@__DIR__, "../data/shallow_water_example_gpu.nc"),
+         (h = h , v = v , u = u, isconvecting = isconvecting),
+           filepath = joinpath(datadir(), "shallow_water_example_gpu.nc"),
            schedule = TimeInterval(1),
          mode = "c")
 
+#@profview run!(simulation)
 run!(simulation)

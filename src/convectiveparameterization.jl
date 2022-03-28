@@ -81,11 +81,11 @@ For a point that will be heated by convection, compute the value of the convecti
 Based on:
 Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and the MJO: A Shallow-Water Model. J. Atmos. Sci., 70, 2476–2486, https://doi.org/10.1175/JAS-D-12-0255.1.
 """
-@inline function heat(t,distance_from_conv_centersq,conv_time_triggered,q0,τ_c,R2,A0)
+@inline function heat(t,conv_time_triggered,τ_c,heat_from_stencil)
     deltat   = t - conv_time_triggered
     quotient = 2.0 * (deltat - τ_c/2.0)/(τ_c)
-    q        = q0*(1.0 - quotient*quotient)*(1.0 - (distance_from_conv_centersq / R2))
-    return  q / (τ_c*A0)
+    q        = heat_from_stencil*(1.0 - quotient*quotient)
+    return  q / τ_c
 end
 
 """
@@ -95,29 +95,19 @@ Tells you the index of your nth neighbor considering periodic boundaries.
 @inline nth_neighbor(i,n,N) = mod1(i + n,N)
 
 """
-    heat_at_point(i,j,k,clock,τ_c,convective_radius,isconvecting,convection_triggered_time,q0,Δx,Δy,Nx,Ny,numelements_to_traverse_x,numelements_to_traverse_y)
+    heat_at_point(i,j,k,clock,τ_c,convective_radius,isconvecting,convection_triggered_time,q0,Δx,Δy,numelements_to_traverse_x,numelements_to_traverse_y)
     Centered on each point it will traverese a square of numelements_to_traverse_y * numelements_to_traverse_y. If one of those neighbors are a convective center, it will heat the current point with the rules shown in:
 
 Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and the MJO: A Shallow-Water Model. J. Atmos. Sci., 70, 2476–2486, https://doi.org/10.1175/JAS-D-12-0255.1.
 """
-function heat_at_point(i,j,k,clock,τ_c,convective_radius,isconvecting,convection_triggered_time,q0,Δx,Δy,Nx,Ny,numelements_to_traverse_x,numelements_to_traverse_y)
+@inline function heat_at_point(i,j,k,current_time,τc,convective_radius,isconvecting,convection_triggered_time,q0,Δx2,Δy2,numelements_to_traverse, heating_stencil)
     forcing = 0.0
-    R2 = convective_radius * convective_radius
-    A0 = pi*R2
-    @inbounds for neigh_y_id in (-numelements_to_traverse_y:numelements_to_traverse_y)
-        y_distancesq = neigh_y_id * neigh_y_id* Δy * Δy
-        #idy = nth_neighbor(j,neigh_y_id,Ny)
-        idy = j + neigh_y_id
-        @inbounds for neigh_x_id in (-numelements_to_traverse_x:numelements_to_traverse_x)
-            x_distancesq = neigh_x_id * neigh_x_id * Δx * Δx
-            distance_from_conv_centersq = x_distancesq + y_distancesq #takes time
-            if distance_from_conv_centersq < R2
-                #idx = nth_neighbor(i,neigh_x_id,Nx)
-                idx = i + neigh_x_id
-                if (isconvecting[idx , idy] == 1.0)
-                    forcing += heat(clock.time,distance_from_conv_centersq,convection_triggered_time[idx,idy],q0,τ_c,R2,A0)
-                end
-            end
+    @inbounds for neigh_j in (-numelements_to_traverse:numelements_to_traverse)
+        @inbounds for neigh_i in (-numelements_to_traverse:numelements_to_traverse)
+            forcing += ifelse( isconvecting[i + neigh_i , j + neigh_j],
+                               heat(current_time,convection_triggered_time[i + neigh_i,j + neigh_j],τc,heating_stencil[-neigh_i,-neigh_j]),
+                               0.0)
+
         end
     end 
     return forcing
@@ -136,23 +126,38 @@ Create a linear damping function for the v field
 v_damping(x, y, z, t, v, relaxation_parameter) = - v * relaxation_parameter
 
 """
+    fill_heating_stencil!(q,q0,Δx,R2)
+Fills a stencil with the spatial profile of the heating.
+Based on:
+
+Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and the MJO: A Shallow-Water Model. J. Atmos. Sci., 70, 2476–2486, https://doi.org/10.1175/JAS-D-12-0255.1.
+"""
+function fill_heating_stencil!(q,q0,Δx,R2)
+    for i in eachindex(q)
+        if (i[1]^2 + i[2]^2)*Δx^2 <= R2 
+            q[i] = q0 * (1.0 - ((i[1]^2 + i[2]^2)*Δx^2 / (R2))) /(pi*R2)
+        else
+            q[i] = 0.0
+        end
+        
+    end
+end
+
+"""
     model_forcing(i,j,k,grid,clock,model_fields,parameters)
 This is an interface with the correct signature to register the convective parameterization to Oceananigans.jl
 It also adds the radiative cooling and the relaxation in the height field with a given timescale.
 """
 function model_forcing(i,j,k,grid,clock,model_fields,parameters)
-    heat_at_point(i,j,k,clock,
+    heat_at_point(i,j,k,clock.time,
                       parameters.τ_c,
                       parameters.R,
                       parameters.isconvecting,
                       parameters.convection_triggered_time,
                       parameters.q0,
-                      grid.Δxᶜᵃᵃ,
-                      grid.Δyᵃᶜᵃ,
-                      grid.Nx,
-                      grid.Ny,
-                      parameters.nghosts_x,
-                      parameters.nghosts_y,
-                      ) - parameters.radiative_cooling_rate - (model_fields.h[i,j,k] - parameters.relaxation_height)*parameters.relaxation_parameter
+                      parameters.Δx2,
+                      parameters.Δy2,
+                      parameters.nghosts,
+                      parameters.heating_stencil) - parameters.radiative_cooling_rate - (model_fields.h[i,j,k] - parameters.relaxation_height)*parameters.relaxation_parameter
 end
 
