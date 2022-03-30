@@ -7,20 +7,20 @@ using DrWatson
 
 parameter_space = Dict(
     "architecture" => "GPU",
-    "coriolis_parameter" => 0.0,#5e-4 #5e-4
-    "gravitational_acceleration" => 10,# 9.8
-    "convection_timescale" => 28800,
-    "critical_height"=> 40,
-    "heating_amplitude"    => 5.0e11,#1.0e9 #originally 9 for heating, -8 for cooling
-    "radiative_cooling_rate" => (1.12/3)*1.0e-8,
-    "convective_radius"    => 30000.0,
-    "relaxation_timescale" => 1.0/7200.0,
-    "relaxation_height" => 38,
-    "Lx" => 1.5e6,
+    "f" => 0.0,# coriolis parameter5e-4 #5e-4
+    "g" => 10,#gravitational acceleration 9.8
+    "convec_t" => (28800, 10800), #convective time scale
+    "h_c"=> 40, #convection_triggering height
+    "q0"    => (5.0e11,1e11,5e10,1e10),#convective heating 1.0e9 #originally 9 for heating, -8 for cooling convective heating
+    "r" => (1.12/3)*1.0e-8,#radiative cooling rate
+    "convec_r"    => (30000,20000,10000), #convective radius
+    "relax_t" => 1.0/(2*86400.0), #relaxation timescale
+    "relax_h" => 39, #height to relax to
+    "Lx" => 1.5e6, #domain
     "Ly" => 1.5e6,
     "Lz" => 45,
-    "Nx" => 512,
-    "Ny" => 512
+    "Nx" => 200,
+    "Ny" => 200
 )
 
 
