@@ -19,7 +19,13 @@ Based on:
 Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and the MJO: A Shallow-Water Model. J. Atmos. Sci., 70, 2476–2486, https://doi.org/10.1175/JAS-D-12-0255.1.
 """
 function update_convective_events!(architecture :: GPU,isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
-    @cuda update_convective_events_gpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
+    kernel = @cuda launch=false update_convective_events_gpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
+    config = launch_configuration(kernel.fun)
+    threads = min(size(isconvecting,1), config.threads)
+    blocks = cld(size(isconvecting,1), threads)
+    CUDA.@sync begin
+        kernel(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny;threads, blocks)
+    end
 end
 
 """
@@ -131,15 +137,48 @@ Based on:
 
 Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and the MJO: A Shallow-Water Model. J. Atmos. Sci., 70, 2476–2486, https://doi.org/10.1175/JAS-D-12-0255.1.
 """
-function fill_heating_stencil!(q,q0,Δx,R2)
+function fill_heating_stencil!(::GPU,q,q0,Δx,R2)
+    @cuda fill_heating_stencil_gpu!(q,q0,Δx,R2)
+    return nothing
+end
+
+function fill_heating_stencil!(::CPU,q,q0,Δx,R2)
+    fill_heating_stencil_cpu!(q,q0,Δx,R2)
+    return nothing
+end
+
+
+function fill_heating_stencil_cpu!(q,q0,Δx,R2)
     for i in eachindex(q)
         if (i[1]^2 + i[2]^2)*Δx^2 <= R2 
             q[i] = q0 * (1.0 - ((i[1]^2 + i[2]^2)*Δx^2 / (R2))) /(pi*R2)
         else
             q[i] = 0.0
         end
-        
     end
+    return nothing
+end
+
+
+function fill_heating_stencil_gpu!(q,q0,Δx,R2)
+    index_x = (blockIdx().x - 1) * blockDim().x + threadIdx().x
+    stride_x = gridDim().x * blockDim().x
+
+    index_y = (blockIdx().y - 1) * blockDim().y + threadIdx().y
+    stride_y = gridDim().y * blockDim().y
+
+    Nx = size(q,1)
+    Ny = size(q,2)
+    @inbounds for i in index_x:stride_x:Nx
+        for j in index_y:stride_y:Ny            
+            if (i^2 + j^2)*Δx^2 <= R2 
+                q[i,j] = q0 * (1.0 - ((i^2 + j^2)*Δx^2 / (R2))) /(pi*R2)
+            else
+                q[i,j] = 0.0
+            end
+        end
+    end
+    return nothing
 end
 
 """
