@@ -5,9 +5,8 @@ using Reexport
 @reexport using CUDA: @cuda, blockIdx, blockDim, threadIdx, gridDim, launch_configuration
 @reexport using DrWatson
 import CUDA
+
 include(joinpath(@__DIR__,"../src/convectiveparameterization.jl"))
-include(joinpath(@__DIR__,"../src/convectiveparameterization_boundarylayer.jl"))
-include(joinpath(@__DIR__,"../src/arrayutils.jl"))
 include(joinpath(@__DIR__,"../src/run_oceananigans_debug_run.jl"))
 include(joinpath(@__DIR__,"../src/run_oceananigans_100d_simulation.jl"))
 
@@ -18,7 +17,8 @@ export u_damping,
     update_convective_events!,
     model_forcing,
     run_shallow_simulation_100d,
+    run_shallow_simulation_debug
 
-end #module
+end 
 
 
