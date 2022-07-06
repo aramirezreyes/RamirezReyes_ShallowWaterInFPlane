@@ -38,16 +38,15 @@ Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and th
 """
 @inline function update_convective_events_cpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny, boundary_layer = false)
         compare = boundary_layer ? (>=) : (<=)
-    Threads.@threads for ind in eachindex(h)
+    @tturbo for ind in eachindex(h)
         time_convecting = t - convection_triggered_time[ind]
         needs_to_convect_by_time = isconvecting[ind] * (time_convecting < τ_convec) #has been convecting less than τ_c?
         needs_to_convect_by_height = compare(h[ind], h_threshold)
         will_start_convecting = needs_to_convect_by_height * iszero(needs_to_convect_by_time) #time needs be updated?
        
-        isconvecting[ind] = needs_to_convect_by_time || needs_to_convect_by_height
-        if will_start_convecting 
-            convection_triggered_time[ind] = t #Update time only if new convective event
-        end
+        needs_to_convect = needs_to_convect_by_time | needs_to_convect_by_height
+        isconvecting[ind] = needs_to_convect
+        convection_triggered_time[ind] = ifelse(will_start_convecting, t, convection_triggered_time[ind])
     end
     return nothing
 end
@@ -107,10 +106,12 @@ Tells you the index of your nth neighbor considering periodic boundaries.
 @inline nth_neighbor(i,n,N) = mod1(i + n,N)
 
 """
-    heat_at_point(i,j,k,clock,τ_c,convective_radius,isconvecting,convection_triggered_time,q0,Δx,Δy,numelements_to_traverse_x,numelements_to_traverse_y)
-    Centered on each point it will traverese a square of numelements_to_traverse_y * numelements_to_traverse_y. If one of those neighbors are a convective center, it will heat the current point with the rules shown in:
+    heat_at_point(i,j,k,clock,τ_c,convective_radius,isconvecting,convection_triggered_time,q0,Δx,Δy,numelements_to_traverse_x,numelements_to_traverse_y, boundary_layer)
+    Centered on each point it will traverese a square of numelements_to_traverse_y * numelements_to_traverse_y. If one of those neighbors is a convective center, it will heat the current point with the rules shown in:
 
 Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and the MJO: A Shallow-Water Model. J. Atmos. Sci., 70, 2476–2486, https://doi.org/10.1175/JAS-D-12-0255.1.
+
+If boundary_layer is true, heating substracts mass (reduces h). Else, convective heating adds mass (increases h).
 """
 @inline function heat_at_point(i,j,k,current_time,τc,convective_radius,isconvecting,convection_triggered_time,q0,Δx2,Δy2,numelements_to_traverse, heating_stencil, boundary_layer = false)
     add_or_substract_mass = boundary_layer ? (-) : (+)
