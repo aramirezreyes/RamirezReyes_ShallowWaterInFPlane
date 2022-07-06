@@ -6,8 +6,8 @@ The version that receives architecture as first parameter is an interface for th
 Based on:
 Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and the MJO: A Shallow-Water Model. J. Atmos. Sci., 70, 2476–2486, https://doi.org/10.1175/JAS-D-12-0255.1.
 """
-function update_convective_events!(architecture :: CPU,isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
-    update_convective_events_cpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
+function update_convective_events!(architecture :: CPU,isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny, boundary_layer = false)
+    update_convective_events_cpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny, boundary_layer)
 end
 
 """
@@ -18,7 +18,7 @@ The version that receives architecture as first parameter is an interface for th
 Based on:
 Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and the MJO: A Shallow-Water Model. J. Atmos. Sci., 70, 2476–2486, https://doi.org/10.1175/JAS-D-12-0255.1.
 """
-function update_convective_events!(architecture :: GPU,isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny; boundary_layer = true)
+function update_convective_events!(architecture :: GPU,isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny, boundary_layer = true)
     kernel = @cuda launch=false update_convective_events_gpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny,boundary_layer)
     config = launch_configuration(kernel.fun)
     threads = min(size(isconvecting,1), config.threads)
@@ -36,11 +36,12 @@ The version contains the implementation for CPU.
 Based on:
 Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and the MJO: A Shallow-Water Model. J. Atmos. Sci., 70, 2476–2486, https://doi.org/10.1175/JAS-D-12-0255.1.
 """
-@inline function update_convective_events_cpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny)
+@inline function update_convective_events_cpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny, boundary_layer = false)
+        compare = boundary_layer ? (>=) : (<=)
      @inbounds Threads.@threads for ind in eachindex(h)
         time_convecting = t - convection_triggered_time[ind]
         needs_to_convect_by_time = isconvecting[ind] && (time_convecting < τ_convec) #has been convecting less than τ_c?
-        needs_to_convect_by_height = (h[ind] <= h_threshold)
+        needs_to_convect_by_height = compare(h[ind], h_threshold)
         will_start_convecting = needs_to_convect_by_height && iszero(needs_to_convect_by_time) #time needs be updated?
         isconvecting[ind] = needs_to_convect_by_time || needs_to_convect_by_height 
         will_start_convecting && (convection_triggered_time[ind] = t) #Update time only if new convective event
