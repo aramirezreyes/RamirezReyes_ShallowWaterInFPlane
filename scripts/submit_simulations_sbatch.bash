@@ -1,7 +1,7 @@
 #!/bin/bash -l
 #SBATCH --account m1517_g
 #SBATCH --qos=regular
-#SBATCH --time=12:00:00
+#SBATCH --time=02:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=4
 #SBATCH --constraint=gpu
