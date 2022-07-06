@@ -1,7 +1,7 @@
 """
     This is intended to be launched from scripts/read_parameter_file_and_launch_15d_simulation.jl
     """
-function run_shallow_simulation_uppertropo_debug(arch)
+function run_shallow_simulation_debug(arch)
 
     architecture = if arch == "CPU"
         CPU()
@@ -14,7 +14,7 @@ function run_shallow_simulation_uppertropo_debug(arch)
     g = 9.8
     τ_c = 10800.0
     h_c = 40.0
-    heating_amplitude = 0.0 #3e9
+    heating_amplitude = 3e9
     radiative_cooling_rate = (1.12/3)*1.0e-8
     convective_radius    = 30000.0
     relaxation_parameter = 1.0/(2*86400)
@@ -67,7 +67,7 @@ function run_shallow_simulation_uppertropo_debug(arch)
                               )
 
     uhⁱ(x, y, z) = 0.0 #uⁱ(x, y, z) * hⁱ(x, y, z)
-
+    h̄(x, y, z) = Lz + 4rand()
     uh, vh, h = model.solution
 
     ## Build velocities
@@ -76,7 +76,8 @@ function run_shallow_simulation_uppertropo_debug(arch)
 
     ## Build and compute mean vorticity discretely
     ω = Field(∂x(v) - ∂y(u))
-    sp = sqrt(u^2 + v^2)
+    diver = Field(∂x(u) + ∂y(v))
+    sp = @at (Center,Center, Center) sqrt(u^2 + v^2)
     compute!(ω)
 
     ## Copy mean vorticity to a new field
@@ -100,7 +101,7 @@ function run_shallow_simulation_uppertropo_debug(arch)
         #@info "Go run update_...!"
         m = sim.model
         update_convective_events!(m.architecture,p.isconvecting,p.convection_triggered_time,m.solution.h,
-                                  m.clock.time,p.τ_c,p.h_c,m.grid.Nx,m.grid.Ny)
+                                  m.clock.time,p.τ_c,p.h_c,m.grid.Nx,m.grid.Ny, p.boundary_layer)
         Oceananigans.BoundaryConditions.fill_halo_regions!(p.isconvecting, m.architecture)
         Oceananigans.BoundaryConditions.fill_halo_regions!(p.convection_triggered_time, m.architecture)
 
@@ -122,7 +123,7 @@ function run_shallow_simulation_uppertropo_debug(arch)
     simulation.output_writers[:fields] =
         NetCDFOutputWriter(
             model,
-            (;h ,v , u, isconvecting, ω, ω′, sp),
+            (;h ,v , u, isconvecting, ω, ω′, sp, diver),
             dir = joinpath(ENV["SCRATCH"],projectname(),"data"),
             filename = outputfilename*".nc",
             schedule = IterationInterval(100),

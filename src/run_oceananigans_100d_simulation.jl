@@ -68,7 +68,7 @@ function run_shallow_simulation_100d(params)
     #Build background state and perturbations
 
     uhⁱ(x, y, z) = 0.0 #uⁱ(x, y, z) * hⁱ(x, y, z)
-
+    h̄(x, y, z) = Lz + 4rand()
     uh, vh, h = model.solution
 
     ## Build velocities
@@ -77,7 +77,8 @@ function run_shallow_simulation_100d(params)
 
     ## Build and compute mean vorticity discretely
     ω = Field(∂x(v) - ∂y(u))
-    sp = sqrt(u^2 + v^2)
+    diver = Field(∂x(u) + ∂y(v))
+    sp = @at (Center, Center, Center) sqrt(u^2 + v^2)
     compute!(ω)
 
     ## Copy mean vorticity to a new field
@@ -100,19 +101,11 @@ function run_shallow_simulation_100d(params)
         p = parameters
         m = sim.model
         update_convective_events!(m.architecture,p.isconvecting,p.convection_triggered_time,m.solution.h,
-                                  m.clock.time,p.τ_c,p.h_c,m.grid.Nx,m.grid.Ny)
+                                  m.clock.time,p.τ_c,p.h_c,m.grid.Nx,m.grid.Ny, p.boundary_layer)
         Oceananigans.BoundaryConditions.fill_halo_regions!(p.isconvecting, m.architecture)
         Oceananigans.BoundaryConditions.fill_halo_regions!(p.convection_triggered_time, m.architecture)
 
     end
-
-    # function progress(sim)
-    #     m = sim.model
-    #     @info(@sprintf("Iter: %d, time: %.1f, Δt: %.1f, max|h|: %.2f, min|h|: %.2f",
-    #                    m.clock.iteration, m.clock.time,
-    #                    sim.Δt, maximum(abs, m.solution.h),  minimum(abs, m.solution.h)))
-        
-    # end
 
 
     function progress(sim)
@@ -130,7 +123,7 @@ function run_shallow_simulation_100d(params)
     simulation.output_writers[:fields] =
         NetCDFOutputWriter(
             model,
-            (h = h , v = v , u = u, isconvecting = isconvecting, ω, ω′, sp),
+            (h = h , v = v , u = u, isconvecting = isconvecting, ω, ω′, sp, diver),
             dir = joinpath(ENV["SCRATCH"],projectname(),"data"),
             filename = outputfilename*".nc",
             schedule = IterationInterval(1200),
