@@ -38,13 +38,16 @@ Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and th
 """
 @inline function update_convective_events_cpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny, boundary_layer = false)
         compare = boundary_layer ? (>=) : (<=)
-     @inbounds Threads.@threads for ind in eachindex(h)
+    Threads.@threads for ind in eachindex(h)
         time_convecting = t - convection_triggered_time[ind]
-        needs_to_convect_by_time = isconvecting[ind] && (time_convecting < τ_convec) #has been convecting less than τ_c?
+        needs_to_convect_by_time = isconvecting[ind] * (time_convecting < τ_convec) #has been convecting less than τ_c?
         needs_to_convect_by_height = compare(h[ind], h_threshold)
-        will_start_convecting = needs_to_convect_by_height && iszero(needs_to_convect_by_time) #time needs be updated?
-        isconvecting[ind] = needs_to_convect_by_time || needs_to_convect_by_height 
-        will_start_convecting && (convection_triggered_time[ind] = t) #Update time only if new convective event
+        will_start_convecting = needs_to_convect_by_height * iszero(needs_to_convect_by_time) #time needs be updated?
+       
+        isconvecting[ind] = needs_to_convect_by_time || needs_to_convect_by_height
+        if will_start_convecting 
+            convection_triggered_time[ind] = t #Update time only if new convective event
+        end
     end
     return nothing
 end

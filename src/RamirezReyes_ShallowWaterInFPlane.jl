@@ -3,6 +3,7 @@ using Reexport
 @reexport using Printf
 @reexport using Oceananigans
 @reexport using CUDA: @cuda, blockIdx, blockDim, threadIdx, gridDim, launch_configuration
+@reexport using LoopVectorization: @turbo, @tturbo
 @reexport using DrWatson
 import CUDA
 
