@@ -110,7 +110,7 @@ end
     sp     = @at (Center,Center, Center) sqrt(u^2 + v^2)
 
 
-    simulation = Simulation(model; Δt = Δt , simulation_length)
+    simulation = Simulation(model; Δt = Δt , stop_time = simulation_length)
 
     function update_convective_helper_arrays(sim, parameters)
         p = parameters
