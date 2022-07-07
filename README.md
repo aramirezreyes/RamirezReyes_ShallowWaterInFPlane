@@ -4,7 +4,7 @@ This project implements the convective parameterization of:
 
 Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and the MJO: A Shallow-Water Model. J. Atmos. Sci., 70, 2476–2486, https://doi.org/10.1175/JAS-D-12-0255.1.
 
-On the Shallow Water model of Oceananigans.jl. It is currently supposed to work on GPU are CPU architecture.
+On the Shallow Water model of Oceananigans.jl. It is currently supposed to work on GPU and CPU architecture.
 
 It relies in:
 - [Oceananigans.jl](https://github.com/CliMA/Oceananigans.jl) for the model (see website for docs)
@@ -15,11 +15,12 @@ It currently includes:
 - gravity
 - convection
 
-This is experimental work carried out at the University of California Davis by Argel Ram\'irez Reyes
+This is experimental work carried out at the University of California Davis by Argel Ramíirez Reyes
 
 ## How to setup your environment
 1. First, download the julia language v1.8.0-rc1 from https://julialang.org/downloads/#upcoming_release
 1. Clone this repository using git. From your bash session you can do:
+
 
     ```bash
     git clone https://github.com/aramirezreyes/RamirezReyes_ShallowWaterInFPlane --branch RossbyPalooza --single-branch
@@ -42,18 +43,20 @@ This is experimental work carried out at the University of California Davis by A
 ## How to run an example
 Assuming you are on the folder RamirezReyes_ShallowWaterInFPlane, use bash to launch julia in the following way:
 
+
 `/path/to/julia/bin/julia --project=@. -t 8 scripts/examples/run_oceananigans_example_cpu.jl`
 
 This runs the case found in scripts/examples/run_oceananigans_example_cpu.jl using 8 cores. Ideally you will run it in a bigger computer and you will be able to use 32 cores.
 
 You can modify the parameters found in there in any text editor.
 
+
 The output will be written in the folder called "data" in NetCDF format
 
 #### If your system had a CUDA capable GPU, you can change the file in  scripts/examples/run_oceananigans_example_cpu.jl and the code will run much faster
 
 #### Parallel scaling
-For a test run with domain of 500x500 saving the 8 variables every 100 timesteps with timestep of 5 seconds I observed the following performance:
+For a test run with domain of 500x500 saving the 8 variables every 100 timesteps with timestep of 5 seconds I observed the following performance for a 3 hour simulation. It is unimpressive but it gives an Idea about the scaling.:
 
 ![Scaling](scaling_cpu.png)
 
