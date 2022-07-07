@@ -10,21 +10,21 @@ function run_shallow_simulation_debug(arch; ultrashort = false)
     end
     @info "Using architecture: ", architecture
     #Setup physicsl parameters
-    f = 5e-4 #5e-4
-    g = 9.8
-    τ_c = 10800.0
-    h_c = 130.0
-    heating_amplitude = 3e9
-    radiative_cooling_rate = (1.12/3)*1.0e-8
-    convective_radius    = 30000.0
-    relaxation_parameter = 1.0/(2*86400)
-    relaxation_height = 129.0
-    Lx = 1.5e6
+    f = 5e-4 #Coriolis
+    g = 9.8 #Gravity
+    τ_c = 10800.0 #Duration of convective events (in seconds)
+    h_c = 130.0 #Critical height that triggers convection (in meters)
+    heating_amplitude = 3e9 #The amplitude of the convective event (q0 in paper)
+    radiative_cooling_rate = (1.12/3)*1.0e-8 #The amplitude of the large scale forcing
+    convective_radius    = 30000.0 #Radius of convective event (in meters)
+    relaxation_parameter = 1.0/(2*86400) # 1/τ where tau is the relaxation timescale for friction and h recovery
+    relaxation_height = 129.0 #Target for the recovery of the h field
+    Lx = 1.5e6 #Size of the domain (in meters)
     Ly = 1.5e6
-    Lz = 126.5
-    Nx = 500
+    Lz = 126.5 # A characteristic height
+    Nx = 500 #Number of points
     Ny = 500
-    boundary_layer = true
+    boundary_layer = true #If true, convection is a mass sink, otherwise is false
     
 
     
