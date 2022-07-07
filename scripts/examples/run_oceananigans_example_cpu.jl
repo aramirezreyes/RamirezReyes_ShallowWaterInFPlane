@@ -29,7 +29,7 @@ function run_shallow_simulation(arch = "CPU")
     ## Setup other simulation prameters
     output_dir = datadir()
     output_filename = "example_run_"*arch*".nc"
-    save_every = 7200                          #in seconds
+    save_every = 7200                          #in number of iterations
     simulation_length = 3                      #in days
     Δt = 5.0                                   #timestep in seconds
 
@@ -107,10 +107,8 @@ end
     v         = vh / h
 
     ## Build and compute mean vorticity discretely
-    ω     = Field(∂x(v) - ∂y(u))
-    diver = Field(∂x(u) + ∂y(v))
     sp     = @at (Center,Center, Center) sqrt(u^2 + v^2)
-    compute!(ω)
+
 
     simulation = Simulation(model; Δt = Δt , simulation_length)
 
@@ -142,7 +140,7 @@ end
     simulation.output_writers[:fields] =
         NetCDFOutputWriter(
             model,
-            (;h ,v , u, isconvecting, ω, sp, diver),
+            (;h ,v , u, isconvecting, sp),
             dir = output_dir,
             filename = output_filename,
             schedule = IterationInterval(save_every),
