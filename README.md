@@ -21,7 +21,7 @@ It currently includes:
 This is experimental work carried out at the University of California Davis by Argel Ram\'irez Reyes
 
 # How to setup your environment
-1. First, download the julia language v1.7.1 from www.julialang.org
+1. First, download the julia language v1.8.0-rc1 from https://julialang.org/downloads/#upcoming_release
 1. Clone this repository using git. From your bash session you can do:
 
 ```bash
