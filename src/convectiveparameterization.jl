@@ -7,7 +7,7 @@ Based on:
 Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and the MJO: A Shallow-Water Model. J. Atmos. Sci., 70, 2476–2486, https://doi.org/10.1175/JAS-D-12-0255.1.
 """
 function update_convective_events!(architecture :: CPU,isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny, boundary_layer = false)
-    update_convective_events_cpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny, boundary_layer)
+    update_convective_events_cpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold, boundary_layer)
 end
 
 """
@@ -36,17 +36,20 @@ The version contains the implementation for CPU.
 Based on:
 Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and the MJO: A Shallow-Water Model. J. Atmos. Sci., 70, 2476–2486, https://doi.org/10.1175/JAS-D-12-0255.1.
 """
-@inline function update_convective_events_cpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny, boundary_layer = false)
+@inline function update_convective_events_cpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold, boundary_layer = false)
         compare = boundary_layer ? (>=) : (<=)
-    @tturbo for ind in eachindex(h)
-        time_convecting = t - convection_triggered_time[ind]
-        needs_to_convect_by_time = isconvecting[ind] * (time_convecting < τ_convec) #has been convecting less than τ_c?
-        needs_to_convect_by_height = compare(h[ind], h_threshold)
+        int_h = interior(h)
+        int_isconvecting = interior(isconvecting)
+        int_convection_triggered_time = interior(convection_triggered_time)
+    @tturbo for ind in eachindex(int_h)
+        time_convecting = t - int_convection_triggered_time[ind]
+        needs_to_convect_by_time = int_isconvecting[ind] * (time_convecting < τ_convec) #has been convecting less than τ_c?
+        needs_to_convect_by_height = compare(int_h[ind], h_threshold)
         will_start_convecting = needs_to_convect_by_height * iszero(needs_to_convect_by_time) #time needs be updated?
        
         needs_to_convect = needs_to_convect_by_time | needs_to_convect_by_height
-        isconvecting[ind] = needs_to_convect
-        convection_triggered_time[ind] = ifelse(will_start_convecting, t, convection_triggered_time[ind])
+        int_isconvecting[ind] = needs_to_convect
+        int_convection_triggered_time[ind] = ifelse(will_start_convecting, t, int_convection_triggered_time[ind])
     end
     return nothing
 end

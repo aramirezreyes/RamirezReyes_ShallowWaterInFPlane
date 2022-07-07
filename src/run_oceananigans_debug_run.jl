@@ -1,7 +1,7 @@
 """
     This is intended to be launched from scripts/read_parameter_file_and_launch_15d_simulation.jl
     """
-function run_shallow_simulation_debug(arch)
+function run_shallow_simulation_debug(arch; ultrashort = false)
 
     architecture = if arch == "CPU"
         CPU()
@@ -91,10 +91,14 @@ function run_shallow_simulation_debug(arch)
 
     set!(model, uh = uhⁱ, h = h̄)
 
-
+    stop_time = if ultrashort 
+        100
+    else
+        10_000
+    end
     #Create the simulation
     #simulation = Simulation(model, Δt = 1e-2, stop_time = 150)
-    simulation = Simulation(model, Δt = 5.0, stop_time = 10000)
+    simulation = Simulation(model; Δt = 5.0, stop_time)
 
     function update_convective_helper_arrays(sim, parameters)
         p = parameters
