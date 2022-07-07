@@ -15,8 +15,7 @@ It currently includes:
 - gravity
 - convection
 
-
-This is experimental work carried out at the University of California Davis by Argel Ram\'irez Reyes
+This is experimental work carried out at the University of California Davis by Argel Ramíirez Reyes
 
 ## How to setup your environment
 1. First, download the julia language v1.8.0-rc1 from https://julialang.org/downloads/#upcoming_release
@@ -57,7 +56,7 @@ The output will be written in the folder called "data" in NetCDF format
 #### If your system had a CUDA capable GPU, you can change the file in  scripts/examples/run_oceananigans_example_cpu.jl and the code will run much faster
 
 #### Parallel scaling
-For a test run with domain of 500x500 saving the 8 variables every 100 timesteps with timestep of 5 seconds I observed the following performance:
+For a test run with domain of 500x500 saving the 8 variables every 100 timesteps with timestep of 5 seconds I observed the following performance for a 3 hour simulation. It is unimpressive but it gives an Idea about the scaling.:
 
 ![Scaling](scaling_cpu.png)
 
