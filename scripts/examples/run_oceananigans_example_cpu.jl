@@ -30,7 +30,7 @@ function run_shallow_simulation(arch = "CPU")
     output_dir = datadir()
     output_filename = "example_run_"*arch*".nc"
     save_every = 7200                          #in number of iterations
-    simulation_length = 3                      #in days
+    simulation_length = 86400.0/12             #in seconds
     Δt = 5.0                                   #timestep in seconds
 
     ####################################
