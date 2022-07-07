@@ -1,4 +1,4 @@
-# Parameterized convection on a shallow water model
+## Parameterized convection on a shallow water model
 
 This project implements the convective parameterization of:
 
@@ -6,48 +6,55 @@ Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and th
 
 On the Shallow Water model of Oceananigans.jl. It is currently supposed to work on GPU are CPU architecture.
 
-To see usage see scripts/run_oceananigans_example_gpu.jl and scripts/run_oceananigans_example_gpu.jl
-
 It relies in:
-- Oceananigans.jl for the model
-- DrWatson.jl for the experiment management
+- [Oceananigans.jl](https://github.com/CliMA/Oceananigans.jl) for the model (see website for docs)
+- [Julia Language v1.8.0-rc1](https://docs.julialang.org/en/v1.8.0-rc1/) for the language (check website for docs), especially [this](https://docs.julialang.org/en/v1.8.0-rc1/manual/getting-started/).
 
 It currently includes:
-- f plane
+- Coriolis (f-plane)
 - gravity
 - convection
 
-
 This is experimental work carried out at the University of California Davis by Argel Ram\'irez Reyes
 
-# How to setup your environment
+## How to setup your environment
 1. First, download the julia language v1.8.0-rc1 from https://julialang.org/downloads/#upcoming_release
 1. Clone this repository using git. From your bash session you can do:
 
-```bash
-git clone https://github.com/aramirezreyes/RamirezReyes_ShallowWaterInFPlane --branch RossbyPalooza2022 --single-branch
-```
+    ```bash
+    git clone https://github.com/aramirezreyes/RamirezReyes_ShallowWaterInFPlane --branch RossbyPalooza --single-branch
+    ```
 
-This should create a folder called `RamirezReyes_ShallowWaterInFPlane`
+    This should create a folder called `RamirezReyes_ShallowWaterInFPlane`
 
 1. cd into this folder
 1. launch julia from where you installed it:
 
-```bash
-julia --project=@.
-```
+    ```bash
+    julia --project=@.
+    ```
 
 1. Once you are in julia, press `]` to enter package mode and type `instantiate`
-this will install the required julia packages. This step is only necessary the first time that you run it.
-1. Exit julia using `CTRL+D` or writing `exit()`
+    `]instantiate`
+    this will install the required julia packages. This step is only necessary the first time that you run it.
+1. Exit julia using `CTRL+D` or by exiting the package mode (backspace) and writing `exit()`
 
-# How to run an example
+## How to run an example
 Assuming you are on the folder RamirezReyes_ShallowWaterInFPlane, use bash to launch julia in the following way:
 
-`julia --project=@. -t 32 -e scripts/examples/run_example_cpu.jl`
+`/path/to/julia/bin/julia --project=@. -t 32 scripts/examples/run_oceananigans_example_cpu.jl`
 
-This runs the case found in src/run_oceananigans_debug_run.jl
+This runs the case found in scripts/examples/run_oceananigans_example_cpu.jl using 32 cores
 
 You can modify the parameters found in there in any text editor.
 
-The output will be written in the folder called "data"
+The output will be written in the folder called "data" in NetCDF format
+
+#### If your system had a CUDA capable GPU, you can change the file in  scripts/examples/run_oceananigans_example_cpu.jl and the code will run much faster
+
+#### Parallel scaling
+For a test run with domain of 500x500 saving the 8 variables every 100 timesteps with timestep of 5 seconds I observed the following performance:
+
+![Scaling](scaling_cpu.png)
+
+Apparently the optimum is with 32 cores (tested on NERSC Perlmutter)
