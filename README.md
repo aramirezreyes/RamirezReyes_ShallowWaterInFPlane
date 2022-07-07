@@ -4,7 +4,7 @@ This project implements the convective parameterization of:
 
 Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and the MJO: A Shallow-Water Model. J. Atmos. Sci., 70, 2476–2486, https://doi.org/10.1175/JAS-D-12-0255.1.
 
-On the Shallow Water model of Oceananigans.jl. It is currently supposed to work on GPU are CPU architecture.
+On the Shallow Water model of Oceananigans.jl. It is currently supposed to work on GPU and CPU architecture.
 
 To see usage see scripts/run_oceananigans_example_gpu.jl and scripts/run_oceananigans_example_gpu.jl
 
@@ -18,7 +18,7 @@ It currently includes:
 - convection
 
 
-This is experimental work carried out at the University of California Davis by Argel Ram\'irez Reyes
+This is experimental work carried out at the University of California Davis by Argel Ramírez Reyes
 
 # How to setup your environment
 1. First, download the julia language v1.8.0-rc1 from https://julialang.org/downloads/#upcoming_release
@@ -44,7 +44,7 @@ this will install the required julia packages. This step is only necessary the f
 # How to run an example
 Assuming you are on the folder RamirezReyes_ShallowWaterInFPlane, use bash to launch julia in the following way:
 
-`julia --project=@. -t 32 -e scripts/examples/run_example_cpu.jl`
+`julia --project=@. -t 32 -e scripts/examples/run_oceananigans_example_cpu.jl`
 
 This runs the case found in src/run_oceananigans_debug_run.jl
 
