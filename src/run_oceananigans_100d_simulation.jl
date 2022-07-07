@@ -56,13 +56,15 @@ function run_shallow_simulation_100d(params)
 
     ## Build the model
 
-    model = ShallowWaterModel(;timestepper=:RungeKutta3,
-                              momentum_advection=WENO5(grid=grid),
-                              grid=grid,
-                              gravitational_acceleration=g,
-                              coriolis=FPlane(f=f),
-                              forcing=(h=convec_forcing,u = u_forcing, v = v_forcing)
-                              )
+    model = ShallowWaterModel(;grid = grid,
+                            timestepper=:RungeKutta3,
+                            momentum_advection=WENO5(grid=grid),
+                            mass_advection=WENO5(grid=grid),
+                            tracer_advection=WENO5(grid=grid),
+                            gravitational_acceleration=g,
+                            coriolis=FPlane(f=f),
+                            forcing=(h=convec_forcing,u = u_forcing, v = v_forcing)
+                            )
 
 
     #Build background state and perturbations

@@ -57,14 +57,15 @@ function run_shallow_simulation_debug(arch; ultrashort = false)
 
     ## Build the model
 
-    model = ShallowWaterModel(;timestepper=:RungeKutta3,
-                              momentum_advection=WENO5(grid=grid),
-                              mass_advection=WENO5(grid=grid),
-                              grid=grid,
-                              gravitational_acceleration=g,
-                              coriolis=FPlane(f=f),
-                              forcing=(h=convec_forcing,u = u_forcing, v = v_forcing)
-                              )
+    model = ShallowWaterModel(;grid=grid,
+                            timestepper=:RungeKutta3,
+                            momentum_advection=WENO5(grid=grid),
+                            mass_advection=WENO5(grid=grid),
+                            tracer_advection=WENO5(grid=grid),
+                            gravitational_acceleration=g,
+                            coriolis=FPlane(f=f),
+                            forcing=(h=convec_forcing,u = u_forcing, v = v_forcing)
+                            )
 
     uhⁱ(x, y, z) = 0.0 #uⁱ(x, y, z) * hⁱ(x, y, z)
     h̄(x, y, z) = Lz + 4rand()
