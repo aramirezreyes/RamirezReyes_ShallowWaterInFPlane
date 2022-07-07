@@ -128,7 +128,7 @@ function run_shallow_simulation_debug(arch; ultrashort = false)
         NetCDFOutputWriter(
             model,
             (;h ,v , u, isconvecting, ω, ω′, sp, diver),
-            dir = joinpath(ENV["SCRATCH"],projectname(),"data"),
+            dir = datadir(),
             filename = outputfilename*".nc",
             schedule = IterationInterval(100),
             overwrite_existing = true)
