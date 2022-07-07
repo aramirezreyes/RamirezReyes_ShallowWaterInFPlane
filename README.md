@@ -6,11 +6,8 @@ Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and th
 
 On the Shallow Water model of Oceananigans.jl. It is currently supposed to work on GPU are CPU architecture.
 
-To see usage see scripts/run_oceananigans_example_gpu.jl and scripts/run_oceananigans_example_gpu.jl
-
 It relies in:
 - Oceananigans.jl for the model
-- DrWatson.jl for the experiment management
 
 It currently includes:
 - f plane
@@ -24,21 +21,22 @@ This is experimental work carried out at the University of California Davis by A
 1. First, download the julia language v1.8.0-rc1 from https://julialang.org/downloads/#upcoming_release
 1. Clone this repository using git. From your bash session you can do:
 
-```bash
-git clone https://github.com/aramirezreyes/RamirezReyes_ShallowWaterInFPlane --branch RossbyPalooza --single-branch
-```
+    ```bash
+    git clone https://github.com/aramirezreyes/RamirezReyes_ShallowWaterInFPlane --branch RossbyPalooza --single-branch
+    ```
 
-This should create a folder called `RamirezReyes_ShallowWaterInFPlane`
+    This should create a folder called `RamirezReyes_ShallowWaterInFPlane`
 
 1. cd into this folder
 1. launch julia from where you installed it:
 
-```bash
-julia --project=@.
-```
+    ```bash
+    julia --project=@.
+    ```
 
 1. Once you are in julia, press `]` to enter package mode and type `instantiate`
-this will install the required julia packages. This step is only necessary the first time that you run it.
+    `]instantiate`
+    this will install the required julia packages. This step is only necessary the first time that you run it.
 1. Exit julia using `CTRL+D` or writing `exit()`
 
 # How to run an example
@@ -46,7 +44,7 @@ Assuming you are on the folder RamirezReyes_ShallowWaterInFPlane, use bash to la
 
 `/path/to/julia/bin/julia --project=@. -t 32 -e scripts/examples/run_oceananigans_example_cpu.jl`
 
-This runs the case found in scripts/examples/run_oceananigans_example_cpu.jl
+This runs the case found in scripts/examples/run_oceananigans_example_cpu.jl using 32 cores
 
 You can modify the parameters found in there in any text editor.
 
