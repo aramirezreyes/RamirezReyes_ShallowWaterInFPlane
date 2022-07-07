@@ -49,3 +49,5 @@ This runs the case found in scripts/examples/run_oceananigans_example_cpu.jl usi
 You can modify the parameters found in there in any text editor.
 
 The output will be written in the folder called "data" in NetCDF format
+
+### If your system had a CUDA capable GPU, you can change the file in  scripts/examples/run_oceananigans_example_cpu.jl and the code will run much faster
