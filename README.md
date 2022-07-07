@@ -44,10 +44,10 @@ this will install the required julia packages. This step is only necessary the f
 # How to run an example
 Assuming you are on the folder RamirezReyes_ShallowWaterInFPlane, use bash to launch julia in the following way:
 
-`julia --project=@. -t 32 -e scripts/examples/run_example_cpu.jl`
+`/path/to/julia/bin/julia --project=@. -t 32 -e scripts/examples/run_oceananigans_example_cpu.jl`
 
-This runs the case found in src/run_oceananigans_debug_run.jl
+This runs the case found in scripts/examples/run_oceananigans_example_cpu.jl
 
 You can modify the parameters found in there in any text editor.
 
-The output will be written in the folder called "data"
+The output will be written in the folder called "data" in NetCDF format
