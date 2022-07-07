@@ -25,7 +25,7 @@ This is experimental work carried out at the University of California Davis by A
 1. Clone this repository using git. From your bash session you can do:
 
 ```bash
-git clone https://github.com/aramirezreyes/RamirezReyes_ShallowWaterInFPlane --branch RossbyPalooza2022 --single-branch
+git clone https://github.com/aramirezreyes/RamirezReyes_ShallowWaterInFPlane --branch RossbyPalooza --single-branch
 ```
 
 This should create a folder called `RamirezReyes_ShallowWaterInFPlane`
