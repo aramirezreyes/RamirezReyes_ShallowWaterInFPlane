@@ -42,9 +42,9 @@ This is experimental work carried out at the University of California Davis by A
 ## How to run an example
 Assuming you are on the folder RamirezReyes_ShallowWaterInFPlane, use bash to launch julia in the following way:
 
-`/path/to/julia/bin/julia --project=@. -t 32 scripts/examples/run_oceananigans_example_cpu.jl`
+`/path/to/julia/bin/julia --project=@. -t 8 scripts/examples/run_oceananigans_example_cpu.jl`
 
-This runs the case found in scripts/examples/run_oceananigans_example_cpu.jl using 32 cores
+This runs the case found in scripts/examples/run_oceananigans_example_cpu.jl using 8 cores. Ideally you will run it in a bigger computer and you will be able to use 32 cores.
 
 You can modify the parameters found in there in any text editor.
 
