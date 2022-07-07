@@ -19,6 +19,7 @@ This is experimental work carried out at the University of California Davis by A
 
 ## How to setup your environment
 1. First, download the julia language v1.8.0-rc1 from https://julialang.org/downloads/#upcoming_release
+    Note: Ziwei Wang reports that the example script works on v1.7.2 which is the default julia installed in UChicago's Midawy computer.
 1. Clone this repository using git. From your bash session you can do:
 
 
