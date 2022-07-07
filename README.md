@@ -15,7 +15,7 @@ It currently includes:
 - gravity
 - convection
 
-This is experimental work carried out at the University of California Davis by Argel Ramíirez Reyes
+This is experimental work carried out at the University of California Davis by Argel Ramírez Reyes
 
 ## How to setup your environment
 1. First, download the julia language v1.8.0-rc1 from https://julialang.org/downloads/#upcoming_release
