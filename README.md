@@ -21,7 +21,7 @@ So far it has shown that convection aggregates in this Shallow Water Model:
 
 ![Aggregation](aggreg.png)
 
-# To reproduce this simulation:
+# To reproduce this simulation (around 5 minutes in GPU and ~1hour with 32 cpu cores):
 
 ## How to setup your environment
 1. First, download the julia language v1.8.0-rc1 from https://julialang.org/downloads/#upcoming_release
