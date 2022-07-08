@@ -150,4 +150,4 @@ run!(simulation)
 
 end 
 
-run_shallow_simulation("CPU")
+run_shallow_simulation("GPU")
