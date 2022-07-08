@@ -10,15 +10,15 @@ function run_shallow_simulation(arch = "CPU")
     end
     @info "Using architecture: ", architecture
     #Setup physicsl parameters
-    f = 5e-4                                  #Coriolis
+    f = 0.0                                  #Coriolis
     g = 9.8                                   #Gravity
-    τ_c = 10800.0                             #Duration of convective events [s]
+    τ_c = 28800.0                             #Duration of convective events [s]
     h_c = 130.0                               #Critical height that triggers convection [m]
-    heating_amplitude = 3e9                   #Amplitude of the convective event (q0 in paper)
+    heating_amplitude = 1e8                   #Amplitude of the convective event (q0 in paper)
     radiative_cooling_rate = (1.12/3)*1.0e-8  #The amplitude of the large scale forcing
-    convective_radius    = 30000.0            #Radius of convective event [m]
+    convective_radius    = 15000.0            #Radius of convective event [m]
     relaxation_parameter = 1.0/(2*86400)      #1/τ where τ is the relaxation timescale for friction and h recovery
-    relaxation_height = 129.0                 #Target for the recovery of the h field
+    relaxation_height = 131.0                 #Target for the recovery of the h field
     Lx = 1.5e6                                #Size of the domain [m]
     Ly = 1.5e6
     Lz = 126.5                                # Acharacteristic height used in initialization
@@ -30,8 +30,8 @@ function run_shallow_simulation(arch = "CPU")
     output_dir = datadir()
     output_filename = "example_run_"*arch*".nc"
     save_every = 7200                          #in number of iterations
-    simulation_length = 86400.0/12             #in seconds
-    Δt = 5.0                                   #timestep in seconds
+    simulation_length = 86400.0*5             #in seconds
+    Δt = 20.0                                   #timestep in seconds
 
     ####################################
     ##### Simulation setup below ######
@@ -125,9 +125,9 @@ end
 
     function progress(sim)
         m = sim.model
-        @info(@sprintf("Iter: %d, time: %.1f, Δt: %.1f, max|h|: %.2f, min|h|: %.2f",
+        @info(@sprintf("Iter: %d, time: %.1f, Δt: %.1f",
                        m.clock.iteration, m.clock.time,
-                       sim.Δt, maximum(abs, m.solution.h),  minimum(abs, m.solution.h)))
+                       sim.Δt))
         
     end
 
@@ -143,11 +143,11 @@ end
             (;h ,v , u, isconvecting, sp),
             dir = output_dir,
             filename = output_filename,
-            schedule = IterationInterval(save_every),
+            schedule = TimeInterval(save_every),
             overwrite_existing = true)
  
 run!(simulation)
 
 end 
 
-run_shallow_simulation()
+run_shallow_simulation("CPU")

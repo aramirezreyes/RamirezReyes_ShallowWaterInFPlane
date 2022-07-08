@@ -17,8 +17,15 @@ It currently includes:
 
 This is experimental work carried out at the University of California Davis by Argel Ramírez Reyes
 
+So far it has shown that convection aggregates in this Shallow Water Model:
+
+![Aggregation](aggreg.png)
+
+# To reproduce this simulation (around 5 minutes in GPU and ~1hour with 32 cpu cores):
+
 ## How to setup your environment
 1. First, download the julia language v1.8.0-rc1 from https://julialang.org/downloads/#upcoming_release
+    Note: Ziwei Wang reports that the example script works on v1.7.2 which is the default julia installed in UChicago's Midawy computer.
 1. Clone this repository using git. From your bash session you can do:
 
 
