@@ -25,8 +25,10 @@ function run_shallow_simulation_100d(params)
     Lz = params["Lz"]
     Nx = params["Nx"]
     Ny = params["Ny"]
+    simulation_length = params["simulation_length_in_days"]
+    save_every = params["output_interval_in_seconds"]
+    timestep = params["timestep_in_seconds"]
 
-    
 
     grid_spacing_x = Lx ÷ Nx #These two need to be equal for x and y!
     grid_spacing_y = Ly ÷ Ny
@@ -56,16 +58,27 @@ function run_shallow_simulation_100d(params)
 
     ## Build the model
 
-    model = ShallowWaterModel(;grid = grid,
-                            timestepper=:RungeKutta3,
-                            momentum_advection=WENO5(grid=grid),
-                            mass_advection=WENO5(grid=grid),
-                            tracer_advection=WENO5(grid=grid),
-                            gravitational_acceleration=g,
-                            coriolis=FPlane(f=f),
-                            forcing=(h=convec_forcing,u = u_forcing, v = v_forcing)
-                            )
-
+    model = if iszero(f)
+        ShallowWaterModel(;grid = grid,
+                          timestepper=:RungeKutta3,
+                          momentum_advection=WENO5(grid=grid),
+                          mass_advection=WENO5(grid=grid),
+                          tracer_advection=WENO5(grid=grid),
+                          gravitational_acceleration=g,
+                          forcing=(h=convec_forcing,u = u_forcing, v = v_forcing)
+                          )
+        
+    else
+        ShallowWaterModel(;grid = grid,
+                          timestepper=:RungeKutta3,
+                          momentum_advection=WENO5(grid=grid),
+                          mass_advection=WENO5(grid=grid),
+                          tracer_advection=WENO5(grid=grid),
+                          gravitational_acceleration=g,
+                          coriolis=FPlane(f=f),
+                          forcing=(h=convec_forcing,u = u_forcing, v = v_forcing)
+                          )
+    end
 
     #Build background state and perturbations
 
@@ -83,21 +96,14 @@ function run_shallow_simulation_100d(params)
     sp = @at (Center, Center, Center) sqrt(u^2 + v^2)
     compute!(ω)
 
-    ## Copy mean vorticity to a new field
-    ωⁱ = Field{Face, Face, Nothing}(model.grid)
-    ωⁱ .= ω
 
-    ## Use this new field to compute the perturbation vorticity
-    ω′ = Field(ω - ωⁱ)
-
-    # and finally set the "true" initial condition with noise,
 
     set!(model, uh = uhⁱ, h = h̄)
 
 
     #Create the simulation
     #simulation = Simulation(model, Δt = 1e-2, stop_time = 150)
-    simulation = Simulation(model, Δt = 5.0, stop_time = 86400*100.0f0)
+    simulation = Simulation(model, Δt = timestep, stop_time = 86400*100.0f0)
 
     function update_convective_helper_arrays(sim, parameters)
         p = parameters
@@ -121,14 +127,14 @@ function run_shallow_simulation_100d(params)
     simulation.callbacks[:progress] = Callback(progress, IterationInterval(100))
     simulation.callbacks[:update_convective_helper_arrays] = Callback(update_convective_helper_arrays, IterationInterval(1); parameters)
     #prepare output files
-    outputfilename = savename(params, ignores=("architecture","g","Lx","Nx","Ny"))
+    outputfilename = savename(params, ignores=("architecture","g","Lx","Nx","output_interval_in_seconds", "simulation_length_in_days", "timestep_in_seconds"))
     simulation.output_writers[:fields] =
         NetCDFOutputWriter(
             model,
-            (h = h , v = v , u = u, isconvecting = isconvecting, ω, ω′, sp, diver),
-            dir = joinpath(ENV["SCRATCH"],projectname(),"data"),
+            (h = h , v = v , u = u, isconvecting = isconvecting, ω, sp, diver),
+            dir = datadir(),
             filename = outputfilename*".nc",
-            schedule = IterationInterval(1200),
+            schedule = TimeInterval(save_every),
             overwrite_existing = true)
     
     
