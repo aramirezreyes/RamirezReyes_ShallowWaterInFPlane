@@ -1,7 +1,7 @@
 """
     This is intended to be launched from scripts/read_parameter_file_and_launch_100d_simulation.jl
     """
-function run_shallow_simulation_100d(params)
+function run_shallow_simulation(params)
 
     architecture = if params["architecture"] == "CPU"
         CPU()
@@ -103,7 +103,7 @@ function run_shallow_simulation_100d(params)
 
     #Create the simulation
     #simulation = Simulation(model, Δt = 1e-2, stop_time = 150)
-    simulation = Simulation(model, Δt = timestep, stop_time = 86400*100.0f0)
+    simulation = Simulation(model, Δt = timestep, stop_time = 86400.0*simulation_length)
 
     function update_convective_helper_arrays(sim, parameters)
         p = parameters
