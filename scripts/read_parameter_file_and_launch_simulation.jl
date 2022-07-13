@@ -8,4 +8,4 @@ using RamirezReyes_ShallowWaterInFPlane
 params_file = ARGS[1]
 params = load(projectdir("_research", "tmp", params_file), "params")
 @info params
-run_shallow_simulation_100d(params)
+run_shallow_simulation(params)

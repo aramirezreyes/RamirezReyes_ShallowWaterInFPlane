@@ -22,6 +22,9 @@ parameter_space = Dict(
     "Nx" => 500,
     "Ny" => 500,
     "boundarylayer" => true,
+    "simulation_length_in_days" => 100,
+    "output_interval_in_seconds" => 7200, 
+    "timestep_in_seconds" => 5,
 )
 
 
