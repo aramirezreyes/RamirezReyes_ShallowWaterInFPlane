@@ -1,4 +1,6 @@
 using Test
 using RamirezReyes_ShallowWaterInFPlane
 using Oceananigans: CPU, GPU
-include("convectiveparameterization.jl")
+using CUDA
+#include("convectiveparameterization.jl")
+include("validation.jl")

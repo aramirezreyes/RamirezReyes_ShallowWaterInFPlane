@@ -5,7 +5,7 @@
 # ΔH = 1/3 q0 
 
 
-function validate(arch)
+function validate(arch ; boundary_layer)
 
     architecture = if arch == "CPU"
         CPU()
@@ -13,20 +13,19 @@ function validate(arch)
         GPU()
     end
     g = 0.0
-    τ_c = 3600.0
-    h_c = 40
+    τ_c = 1000.0
+    h_c = 40.0
     heating_amplitude = 1e9
     radiative_cooling_rate = 0.0
     convective_radius    = 10_000.0
     relaxation_parameter = 0
     relaxation_height = 45.0
-    boundary_layer = false
     Lx = 30_000
     Ly = 30_000
-    Lz = 45
+    Lz = boundary_layer ? 39 : 41
     Nx = 100
     Ny = 100
-    simulation_length = 7200 / 86400
+    simulation_length = 2000 / 86400
     timestep = 20.0
 
     grid_spacing_x = Lx ÷ Nx #These two need to be equal for x and y!
@@ -62,7 +61,7 @@ function validate(arch)
     uhⁱ(x, y, z) = 0.0 
     function h̄(x, y, z)
         if x == grid.xᶜᵃᵃ[Nx ÷ 2] && y == grid.yᵃᶜᵃ[Ny ÷ 2]
-            return 39
+            return boundary_layer ? 41 : 39
         else
             return Lz 
         end
@@ -89,24 +88,24 @@ function validate(arch)
 
     end
 
-    function progress(sim)
-        m = sim.model
-        @info(@sprintf("Iter: %d, time: %.1f, Δt: %.1f, max|h|: %.2f, min|h|: %.2f",
-                    m.clock.iteration, m.clock.time,
-                    sim.Δt, maximum(m.solution.h), minimum(m.solution.h)))
+    # function progress(sim)
+    #     m = sim.model
+    #     @info(@sprintf("Iter: %d, time: %.1f, Δt: %.1f, max|h|: %.2f, min|h|: %.2f",
+    #                 m.clock.iteration, m.clock.time,
+    #                 sim.Δt, maximum(m.solution.h), minimum(m.solution.h)))
         
-    end
+    # end
 
-    simulation.output_writers[:fields] =
-    NetCDFOutputWriter(
-        model,
-        (h = h , v = v , u = u, isconvecting = isconvecting ),
-        dir = datadir(),
-        filename = "validation.nc",
-        schedule = IterationInterval(1),
-        overwrite_existing = true)
+    # simulation.output_writers[:fields] =
+    # NetCDFOutputWriter(
+    #     model,
+    #     (h = h , v = v , u = u, isconvecting = isconvecting ),
+    #     dir = datadir(),
+    #     filename = "validation.nc",
+    #     schedule = IterationInterval(1),
+    #     overwrite_existing = true)
 
-    simulation.callbacks[:progress] = Callback(progress, IterationInterval(1))
+    # simulation.callbacks[:progress] = Callback(progress, IterationInterval(100))
     simulation.callbacks[:update_convective_helper_arrays] = Callback(update_convective_helper_arrays, IterationInterval(1); parameters)
 
     run!(simulation)
