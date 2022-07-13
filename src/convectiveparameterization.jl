@@ -21,8 +21,8 @@ Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and th
 function update_convective_events!(architecture :: GPU,isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny, boundary_layer = true)
     kernel = @cuda launch=false update_convective_events_gpu!(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny,boundary_layer)
     config = launch_configuration(kernel.fun)
-    threads = min(size(isconvecting,1), config.threads)
-    blocks = cld(size(isconvecting,1), threads)
+    threads = min(prod(size(isconvecting)), config.threads)
+    blocks = cld(prod(size(isconvecting)), threads)
     CUDA.@sync begin
         kernel(isconvecting,convection_triggered_time,h,t,τ_convec,h_threshold,Nx,Ny,boundary_layer; threads, blocks)
     end
