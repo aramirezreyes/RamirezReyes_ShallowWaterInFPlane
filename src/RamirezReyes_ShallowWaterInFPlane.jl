@@ -17,7 +17,7 @@ export u_damping,
     fill_heating_stencil!,
     update_convective_events!,
     model_forcing,
-    run_shallow_simulation
+    run_shallow_simulation,
     run_shallow_simulation_debug
 end 
 
