@@ -34,7 +34,7 @@ And without rotation
 
 
     ```bash
-    git clone https://github.com/aramirezreyes/RamirezReyes_ShallowWaterInFPlane --branch RossbyPalooza --single-branch
+    git clone https://github.com/aramirezreyes/RamirezReyes_ShallowWaterInFPlane --branch main --single-branch
     ```
 
     This should create a folder called `RamirezReyes_ShallowWaterInFPlane`
@@ -55,16 +55,16 @@ And without rotation
 Assuming you are on the folder RamirezReyes_ShallowWaterInFPlane, use bash to launch julia in the following way:
 
 
-`/path/to/julia/bin/julia --project=@. -t 8 scripts/examples/run_oceananigans_example_cpu.jl`
+`/path/to/julia/bin/julia --project=@. -t 8 scripts/examples/convective_aggregation_cpu.jl`
 
-This runs the case found in scripts/examples/run_oceananigans_example_cpu.jl using 8 cores. Ideally you will run it in a bigger computer and you will be able to use 32 cores.
+This runs the case found in scripts/examples/convective_aggregation_cpu.jl using 8 cores. Ideally you will run it in a bigger computer and you will be able to use 32 cores.
 
 You can modify the parameters found in there in any text editor.
 
 
 The output will be written in the folder called "data" in NetCDF format
 
-#### If your system had a CUDA capable GPU, you can change the file in  scripts/examples/run_oceananigans_example_cpu.jl and the code will run much faster
+#### If your system has a CUDA capable GPU, you can change the file in  scripts/examples/convective_aggregation_cpu.jl and the code will run much faster
 
 #### Parallel scaling
 For a test run with domain of 500x500 saving the 8 variables every 100 timesteps with timestep of 5 seconds I observed the following performance for a 3 hour simulation. It is unimpressive but it gives an Idea about the scaling.:
