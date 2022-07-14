@@ -18,7 +18,7 @@ function run_shallow_simulation_debug(arch; ultrashort = false)
     radiative_cooling_rate = (1.12/3)*1.0e-8 #The amplitude of the large scale forcing
     convective_radius    = 30000.0 #Radius of convective event (in meters)
     relaxation_parameter = 1.0/(2*86400) # 1/τ where tau is the relaxation timescale for friction and h recovery
-    relaxation_height = 129.0 #Target for the recovery of the h field
+    relaxation_height = 131.0 #Target for the recovery of the h field
     Lx = 1.5e6 #Size of the domain (in meters)
     Ly = 1.5e6
     Lz = 126.5 # A characteristic height
@@ -81,12 +81,6 @@ function run_shallow_simulation_debug(arch; ultrashort = false)
     sp = @at (Center,Center, Center) sqrt(u^2 + v^2)
     compute!(ω)
 
-    ## Copy mean vorticity to a new field
-    ωⁱ = Field{Face, Face, Nothing}(model.grid)
-    ωⁱ .= ω
-
-    ## Use this new field to compute the perturbation vorticity
-    ω′ = Field(ω - ωⁱ)
 
     # and finally set the "true" initial condition with noise,
 
@@ -128,7 +122,7 @@ function run_shallow_simulation_debug(arch; ultrashort = false)
     simulation.output_writers[:fields] =
         NetCDFOutputWriter(
             model,
-            (;h ,v , u, isconvecting, ω, ω′, sp, diver),
+            (;h ,v , u, isconvecting, ω, sp, diver),
             dir = datadir(),
             filename = outputfilename*".nc",
             schedule = IterationInterval(100),
