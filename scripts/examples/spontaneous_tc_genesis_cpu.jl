@@ -2,7 +2,6 @@ using RamirezReyes_ShallowWaterInFPlane
 
 
 function run_shallow_simulation(arch = "CPU")
-
     architecture = if arch == "CPU"
         CPU()
     elseif arch == "GPU" 
@@ -10,28 +9,28 @@ function run_shallow_simulation(arch = "CPU")
     end
     @info "Using architecture: ", architecture
     #Setup physicsl parameters
-    f = 0.0                                  #Coriolis
+    f = 3e-5                                  #Coriolis
     g = 9.8                                   #Gravity
     τ_c = 28800.0                             #Duration of convective events [s]
     h_c = 130.0                               #Critical height that triggers convection [m]
-    heating_amplitude = 1e8                   #Amplitude of the convective event (q0 in paper)
-    radiative_cooling_rate = (1.12/3)*1.0e-8  #The amplitude of the large scale forcing
-    convective_radius    = 15000.0            #Radius of convective event [m]
+    heating_amplitude = 1e9                   #Amplitude of the convective event (q0 in paper)
+    radiative_cooling_rate = (1.12/3)*1.0e-9  #The amplitude of the large scale forcing
+    convective_radius    = 30000.0            #Radius of convective event [m]
     relaxation_parameter = 1.0/(2*86400)      #1/τ where τ is the relaxation timescale for friction and h recovery
     relaxation_height = 131.0                 #Target for the recovery of the h field
-    Lx = 1.5e6                                #Size of the domain [m]
-    Ly = 1.5e6
+    Lx = 2e6                                #Size of the domain [m]
+    Ly = 2e6
     Lz = 126.5                                # Acharacteristic height used in initialization
-    Nx = 500                                  #Number of points
-    Ny = 500
+    Nx = 250                                  #Number of points
+    Ny = 250
     boundary_layer = true                     #If true, convection is a mass sink, otherwise is false
     
     ## Setup other simulation prameters
     output_dir = datadir()
-    output_filename = "convective_self_aggregation_run_"*arch*".nc"
+    output_filename = "spontaneous_tc_genesis_run_"*arch*".nc"
     save_every = 7200                          #in number of iterations
     simulation_length = 86400.0*20             #in seconds
-    Δt = 20.0                                   #timestep in seconds
+    Δt = 40.0                                   #timestep in seconds
 
     ####################################
     ##### Simulation setup below ######
@@ -107,9 +106,9 @@ end
     v         = vh / h
 
     ## Build and compute mean vorticity discretely
-    sp     = @at (Center,Center, Center) sqrt(u^2 + v^2)
-
-
+    ω = Field(∂x(v) - ∂y(u))
+    sp = @at (Center, Center, Center) sqrt(u^2 + v^2)
+    compute!(ω)
     simulation = Simulation(model; Δt = Δt , stop_time = simulation_length)
 
     function update_convective_helper_arrays(sim, parameters)
@@ -140,7 +139,7 @@ end
     simulation.output_writers[:fields] =
         NetCDFOutputWriter(
             model,
-            (;h ,v , u, isconvecting, sp),
+            (;h ,v , u, isconvecting, sp, ω),
             dir = output_dir,
             filename = output_filename,
             schedule = TimeInterval(save_every),
