@@ -97,7 +97,7 @@ Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and th
 """
 @inline function heat(t,conv_time_triggered,τ_c,heat_from_stencil)
     deltat   = t - conv_time_triggered
-    quotient = 2.0 * (deltat - τ_c/2.0)/(τ_c)
+    quotient = (2deltat/(τ_c) - 1.0)
     q        = heat_from_stencil*(1.0 - quotient*quotient)
     return  q / τ_c
 end
@@ -116,13 +116,17 @@ Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and th
 
 If boundary_layer is true, heating substracts mass (reduces h). Else, convective heating adds mass (increases h).
 """
-@inline function heat_at_point(i,j,k,current_time,τc,convective_radius,isconvecting,convection_triggered_time,q0,Δx2,Δy2,numelements_to_traverse, heating_stencil, boundary_layer = false)
+@inline function heat_at_point(i,j,k,current_time,τc,isconvecting,convection_triggered_time,numelements_to_traverse, heating_stencil, boundary_layer = false)
     add_or_substract_mass = boundary_layer ? (-) : (+)
     forcing = 0.0
-    @inbounds for neigh_j in (-numelements_to_traverse:numelements_to_traverse)
-        @inbounds for neigh_i in (-numelements_to_traverse:numelements_to_traverse)
-             if isconvecting[i + neigh_i , j + neigh_j]
-                 forcing = add_or_substract_mass( forcing , heat(current_time,convection_triggered_time[i + neigh_i,j + neigh_j],τc,heating_stencil[-neigh_i,-neigh_j]))
+    nn = -numelements_to_traverse
+    np = numelements_to_traverse
+    @inbounds for neigh_j in nn:np
+        jinner = j + neigh_j
+        @inbounds for neigh_i in nn:np
+            iinner = i + neigh_i
+             if isconvecting[iinner , jinner]
+                 forcing = add_or_substract_mass( forcing , heat(current_time,convection_triggered_time[iinner,jinner],τc,heating_stencil[neigh_i,neigh_j]))
              end
         end
     end 
@@ -211,12 +215,8 @@ function model_forcing(i,j,k,grid,clock,model_fields,parameters)
     radiative_cooling_rate = boundary_layer ? parameters.radiative_cooling_rate : -1*parameters.radiative_cooling_rate
     heat_at_point(i,j,k,clock.time,
                       parameters.τ_c,
-                      parameters.R,
                       parameters.isconvecting,
                       parameters.convection_triggered_time,
-                      parameters.q0,
-                      parameters.Δx2,
-                      parameters.Δy2,
                       parameters.nghosts,
                       parameters.heating_stencil,parameters.boundary_layer) + radiative_cooling_rate - (model_fields.h[i,j,k] - parameters.relaxation_height)*parameters.relaxation_parameter
 end
