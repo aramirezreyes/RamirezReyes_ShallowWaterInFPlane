@@ -5,7 +5,7 @@
 # ΔH = 1/3 q0 
 
 
-function validate(arch ; boundary_layer)
+function validate_mass_addition(arch ; boundary_layer, output = false)
 
     architecture = if arch == "CPU"
         CPU()
@@ -88,24 +88,28 @@ function validate(arch ; boundary_layer)
 
     end
 
-    # function progress(sim)
-    #     m = sim.model
-    #     @info(@sprintf("Iter: %d, time: %.1f, Δt: %.1f, max|h|: %.2f, min|h|: %.2f",
-    #                 m.clock.iteration, m.clock.time,
-    #                 sim.Δt, maximum(m.solution.h), minimum(m.solution.h)))
-        
-    # end
 
-    # simulation.output_writers[:fields] =
-    # NetCDFOutputWriter(
-    #     model,
-    #     (h = h , v = v , u = u, isconvecting = isconvecting ),
-    #     dir = datadir(),
-    #     filename = "validation.nc",
-    #     schedule = IterationInterval(1),
-    #     overwrite_existing = true)
+     function progress(sim)
+         m = sim.model
+         @info(@sprintf("Iter: %d, time: %.1f, Δt: %.1f, max|h|: %.2f, min|h|: %.2f",
+                     m.clock.iteration, m.clock.time,
+                     sim.Δt, maximum(m.solution.h), minimum(m.solution.h)))
+             end
 
-    # simulation.callbacks[:progress] = Callback(progress, IterationInterval(100))
+    if output 
+        simulation.output_writers[:fields] =
+     NetCDFOutputWriter(
+         model,
+         (h = h , v = v , u = u, isconvecting = isconvecting ),
+         dir = datadir(),
+         filename = "validation.nc",
+         schedule = IterationInterval(1),
+         overwrite_existing = true)
+    end
+
+    if output
+        simulation.callbacks[:progress] = Callback(progress, IterationInterval(1))
+    end
     simulation.callbacks[:update_convective_helper_arrays] = Callback(update_convective_helper_arrays, IterationInterval(1); parameters)
 
     run!(simulation)
