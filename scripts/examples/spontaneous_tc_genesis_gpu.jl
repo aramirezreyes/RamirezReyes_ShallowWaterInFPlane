@@ -21,8 +21,8 @@ function run_shallow_simulation(arch = "CPU")
     Lx = 2e6                                #Size of the domain [m]
     Ly = 2e6
     Lz = 126.5                                # Acharacteristic height used in initialization
-    Nx = 500                                  #Number of points
-    Ny = 500
+    Nx = 250                                  #Number of points
+    Ny = 250
     boundary_layer = true                     #If true, convection is a mass sink, otherwise is false
     
     ## Setup other simulation prameters
@@ -30,7 +30,7 @@ function run_shallow_simulation(arch = "CPU")
     output_filename = "spontaneous_tc_genesis_run_"*arch*".nc"
     save_every = 7200                          #in number of iterations
     simulation_length = 86400.0*20             #in seconds
-    Δt = 20.0                                   #timestep in seconds
+    Δt = 40.0                                   #timestep in seconds
 
     ####################################
     ##### Simulation setup below ######
