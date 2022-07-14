@@ -178,17 +178,26 @@ function fill_heating_stencil_gpu!(q,q0,Δx,R2)
     index_y = (blockIdx().y - 1) * blockDim().y + threadIdx().y
     stride_y = gridDim().y * blockDim().y
 
-    Nx = size(q,1)
-    Ny = size(q,2)
-    @inbounds for i in index_x:stride_x:Nx
-        for j in index_y:stride_y:Ny            
+    Nx = axes(q,1)[end]
+    Ny = axes(q,2)[end]
+    
+    @inbounds for i in (index_x-1):stride_x:Nx
+        for j in (index_y - 1):stride_y:Ny            
             if (i^2 + j^2)*Δx^2 <= R2 
-                q[i,j] = q0 * (1.0 - ((i^2 + j^2)*Δx^2 / (R2))) /(pi*R2)
+                heating_value = q0 * (1.0 - ((i^2 + j^2)*Δx^2 / (R2))) /(pi*R2)
+                q[i,j]   = heating_value
+                q[-i,j]  = heating_value
+                q[i,-j]  = heating_value
+                q[-i,-j] = heating_value
             else
-                q[i,j] = 0.0
+                q[i,j]   = 0.0
+                q[-i,j]  = 0.0
+                q[i,-j]  = 0.0
+                q[-i,-j] = 0.0
             end
         end
     end
+
     return nothing
 end
 
