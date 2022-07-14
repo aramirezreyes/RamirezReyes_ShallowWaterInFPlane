@@ -17,7 +17,11 @@ It currently includes:
 
 This is experimental work carried out at the University of California Davis by Argel Ramírez Reyes
 
-So far it has shown that convection aggregates in this Shallow Water Model:
+So far it has shown that convection aggregates in this Shallow Water Model with rotation (spontaneous TC genesis):
+
+![TCs](spontaneous_tc_genesis.png)
+
+And without rotation
 
 ![Aggregation](aggreg.png)
 
