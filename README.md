@@ -8,7 +8,7 @@ On the Shallow Water model of Oceananigans.jl. It is currently supposed to work 
 
 It relies in:
 - [Oceananigans.jl](https://github.com/CliMA/Oceananigans.jl) for the model (see website for docs)
-- [Julia Language v1.8.0-rc1](https://docs.julialang.org/en/v1.8.0-rc1/) for the language (check website for docs), especially [this](https://docs.julialang.org/en/v1.8.0-rc1/manual/getting-started/).
+- [Julia Language v1.7.1](https://docs.julialang.org/en/v1.7.1/) for the language (check website for docs), especially [this](https://docs.julialang.org/en/v1.7.1/manual/getting-started/).
 
 It currently includes:
 - Coriolis (f-plane)
@@ -28,7 +28,7 @@ And without rotation
 # To reproduce this simulation (around 5 minutes in GPU and ~1hour with 32 cpu cores):
 
 ## How to setup your environment
-1. First, download the julia language v1.8.0-rc1 from https://julialang.org/downloads/#upcoming_release
+1. First, download the julia language v1.7.1 from https://julialang.org/downloads/
     Note: Ziwei Wang reports that the example script works on v1.7.2 which is the default julia installed in UChicago's Midawy computer.
 1. Clone this repository using git. From your bash session you can do:
 
