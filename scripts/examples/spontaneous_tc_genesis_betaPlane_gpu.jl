@@ -9,7 +9,8 @@ function run_shallow_simulation(arch = "CPU")
     end
     @info "Using architecture: ", architecture
     #Setup physicsl parameters
-    f = 3e-5                                  #Coriolis
+    f = 3e-5
+    β = 3e-5 / 2e7                                  #Coriolis
     g = 9.8                                   #Gravity
     τ_c = 28800.0                             #Duration of convective events [s]
     h_c = 130.0                               #Critical height that triggers convection [m]
@@ -86,7 +87,7 @@ function run_shallow_simulation(arch = "CPU")
         mass_advection=WENO5(grid=grid),
         tracer_advection=WENO5(grid=grid),
         gravitational_acceleration=g,
-        coriolis=FPlane(f=f),
+        coriolis=BetaPlane(f₀=f, β=β),
         forcing=(h=convec_forcing,u = u_forcing, v = v_forcing)
         )
 end
