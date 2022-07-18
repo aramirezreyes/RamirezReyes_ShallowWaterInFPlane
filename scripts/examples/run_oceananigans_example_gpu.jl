@@ -55,12 +55,12 @@ function run_shallow_simulation(arch = "CPU")
     ## Will create heating stencil with the spatial component
     q_stencil = CenterField(grid,Float64; indices=(-halo_indices:halo_indices,-halo_indices:halo_indices,:))
     fill_heating_stencil!(grid.architecture,q_stencil,heating_amplitude,grid_spacing_x,convective_radius^2)
-
+    meanh = Field{Nothing, Nothing, Center}(grid)
 
     parameters = (; isconvecting = isconvecting, convection_triggered_time, τ_c, h_c, 
     nghosts = numelements_to_traverse - 1, radiative_cooling_rate , q0 = heating_amplitude,
     R = convective_radius, relaxation_parameter, relaxation_height, Δx2 = grid_spacing_x^2,
-    Δy2 = grid_spacing_y^2, heating_stencil = q_stencil, boundary_layer
+    Δy2 = grid_spacing_y^2, heating_stencil = q_stencil, boundary_layer, meanh
     )
 
     #build forcing
@@ -105,7 +105,7 @@ end
     uh, vh, h = model.solution
     u         = uh / h
     v         = vh / h
-
+    set!(meanh, mean(h))
     ## Build and compute mean vorticity discretely
     sp     = @at (Center,Center, Center) sqrt(u^2 + v^2)
 
@@ -119,7 +119,7 @@ end
                                   m.clock.time,p.τ_c,p.h_c,m.grid.Nx,m.grid.Ny, p.boundary_layer)
         Oceananigans.BoundaryConditions.fill_halo_regions!(p.isconvecting, m.architecture)
         Oceananigans.BoundaryConditions.fill_halo_regions!(p.convection_triggered_time, m.architecture)
-
+        set!(meanh, mean(m.solution.h))
 
     end
 
