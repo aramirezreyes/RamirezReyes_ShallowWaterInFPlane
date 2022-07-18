@@ -6,7 +6,8 @@ using Reexport
 @reexport using LoopVectorization: @turbo, @tturbo
 @reexport using DrWatson
 import CUDA
-using Statistics: mean
+@reexport using Statistics: mean
+
 include(joinpath(@__DIR__,"../src/convectiveparameterization.jl"))
 include(joinpath(@__DIR__,"../src/run_oceananigans_debug_run.jl"))
 include(joinpath(@__DIR__,"../src/run_oceananigans_100d_simulation.jl"))
