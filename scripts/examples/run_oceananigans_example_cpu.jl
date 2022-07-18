@@ -18,7 +18,7 @@ function run_shallow_simulation(arch = "CPU")
     radiative_cooling_rate = (1.12/3)*1.0e-8  #The amplitude of the large scale forcing
     convective_radius    = 15000.0            #Radius of convective event [m]
     relaxation_parameter = 1.0/(2*86400)      #1/τ where τ is the relaxation timescale for friction and h recovery
-    relaxation_height = 131.0                 #Target for the recovery of the h field
+#    relaxation_height = 131.0                 #Target for the recovery of the h field
     Lx = 1.5e6                                #Size of the domain [m]
     Ly = 1.5e6
     Lz = 126.5                                # Acharacteristic height used in initialization
@@ -59,7 +59,7 @@ function run_shallow_simulation(arch = "CPU")
 
     parameters = (; isconvecting = isconvecting, convection_triggered_time, τ_c, h_c, 
     nghosts = numelements_to_traverse - 1, radiative_cooling_rate , q0 = heating_amplitude,
-    R = convective_radius, relaxation_parameter, relaxation_height, Δx2 = grid_spacing_x^2,
+    R = convective_radius, relaxation_parameter, Δx2 = grid_spacing_x^2,
     Δy2 = grid_spacing_y^2, heating_stencil = q_stencil, boundary_layer, meanh
     )
 
