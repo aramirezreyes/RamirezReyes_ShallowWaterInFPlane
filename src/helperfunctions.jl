@@ -5,7 +5,7 @@ function update_convective_helper_arrays(sim, parameters)
                               m.clock.time,p.convection_timescale,p.convection_critical_height,m.grid.Nx,m.grid.Ny, p.boundary_layer)
     Oceananigans.BoundaryConditions.fill_halo_regions!(p.isconvecting, m.architecture)
     Oceananigans.BoundaryConditions.fill_halo_regions!(p.convection_triggered_time, m.architecture)
-    isnothing(p.relaxation_height) && set!(p.mean_h,mean(m.solution.h))
+    isnothing(p.relaxation_height) && mean!(p.mean_h,m.solution.h)
 end
 
 

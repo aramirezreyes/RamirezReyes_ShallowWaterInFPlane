@@ -5,7 +5,7 @@ using Reexport
 @reexport using CUDA: @cuda, blockIdx, blockDim, threadIdx, gridDim, launch_configuration
 @reexport using LoopVectorization: @turbo, @tturbo
 @reexport using DrWatson
-@reexport using Statistics: mean
+@reexport using Statistics: mean!
 import CUDA
 
 include(joinpath(@__DIR__,"../src/convectiveparameterization.jl"))
@@ -18,6 +18,7 @@ export update_convective_helper_arrays,
 compute_nghosts,
 shorten_names,
 short_parameter_names,
+build_convective_parameterization_tools,
 u_damping,  
     v_damping,
     fill_heating_stencil!,
