@@ -23,8 +23,8 @@ echo $2
 echo $3
 echo $4
 
-srun --exact -u -n 1 --gpus-per-task 1 -c 1 --mem-per-cpu=50G /global/u2/a/aramreye/Software/julia-1.8.0-rc1/bin/julia --project=@. read_parameter_file_and_launch_simulation.jl $1 &
-srun --exact -u -n 1 --gpus-per-task 1 -c 1 --mem-per-cpu=50G /global/u2/a/aramreye/Software/julia-1.8.0-rc1/bin/julia --project=@. read_parameter_file_and_launch_simulation.jl $2 &
-srun --exact -u -n 1 --gpus-per-task 1 -c 1 --mem-per-cpu=50G /global/u2/a/aramreye/Software/julia-1.8.0-rc1/bin/julia --project=@. read_parameter_file_and_launch_simulation.jl $3 &
-srun --exact -u -n 1 --gpus-per-task 1 -c 1 --mem-per-cpu=50G /global/u2/a/aramreye/Software/julia-1.8.0-rc1/bin/julia --project=@. read_parameter_file_and_launch_simulation.jl $4 &
+srun --exact -u -n 1 --gpus-per-task 1 -c 1 --mem-per-cpu=50G /global/u2/a/aramreye/Software/julia-1.7.1/bin/julia --project=@. read_parameter_file_and_launch_simulation.jl $1 &
+srun --exact -u -n 1 --gpus-per-task 1 -c 1 --mem-per-cpu=50G /global/u2/a/aramreye/Software/julia-1.7.1/bin/julia --project=@. read_parameter_file_and_launch_simulation.jl $2 &
+srun --exact -u -n 1 --gpus-per-task 1 -c 1 --mem-per-cpu=50G /global/u2/a/aramreye/Software/julia-1.7.1/bin/julia --project=@. read_parameter_file_and_launch_simulation.jl $3 &
+srun --exact -u -n 1 --gpus-per-task 1 -c 1 --mem-per-cpu=50G /global/u2/a/aramreye/Software/julia-1.7.1/bin/julia --project=@. read_parameter_file_and_launch_simulation.jl $4 &
 wait
