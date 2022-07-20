@@ -4,9 +4,6 @@
 # In which the mass added to the system after a convective event is equal to
 # ΔH = 1/3 q0 
 
-
-### This is currently not working because initialization has random points
-
 parameters = Dict(
     "architecture" => "GPU",
     "output_filename" => "one_convecting_point_GPU",
@@ -21,10 +18,12 @@ parameters = Dict(
     "relaxation_height" => nothing, #height to relax to, if nothing, h relax to its mean
     "Lx" => 30000, #domain
     "Ly" => 30000,
-    "Lz" => 39.0,
+    "Lz" => 40.0,
     "Nx" => 100,
     "Ny" => 100,
-    "boundary_layer" => false, #if true Lz=30 otherwise Lz = 41
+    "boundary_layer" => false, 
+    "initialization_style" => "one_convecting_point",
+    "initialization_amplitude" => 1,
     "simulation_length_in_days" => 2000 / 86400,
     "output_interval_in_seconds" => 20, 
     "timestep_in_seconds" => 20,
@@ -33,3 +32,4 @@ parameters = Dict(
 using RamirezReyes_ShallowWaterInFPlane
 
 run_shallow_simulation(parameters)
+ 
