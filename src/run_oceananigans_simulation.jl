@@ -1,6 +1,6 @@
 """
     This is intended to be launched from scripts/read_parameter_file_and_launch_simulation.jl
-    """
+"""
 function run_shallow_simulation(parameters_dict)
 
     architecture = if parameters_dict["architecture"] == "CPU"
@@ -40,8 +40,17 @@ function run_shallow_simulation(parameters_dict)
                             forcing=(h=convec_forcing,u = u_forcing, v = v_forcing)
                             )
 
-    uhⁱ(x, y, z) = 0.0 #uⁱ(x, y, z) * hⁱ(x, y, z)
-    h̄(x, y, z) = parameters_dict["Lz"] + 4rand()
+    uhⁱ(x, y, z) = 0.0 
+    h0_rand(x,y,z) = parameters_dict["Lz"] + parameters_dict["initialization_amplitude"]*rand()
+
+    function h0_one_convecting_point(x,y,z) 
+        if x == grid.xᶜᵃᵃ[parameters_dict["Nx"] ÷ 2] && y == grid.yᵃᶜᵃ[parameters_dict["Ny"] ÷ 2]
+            parameters_dict["boundary_layer"] ? parameters_dict["convection_critical_height"] + parameters_dict["initialization_amplitude"] : parameters_dict["convection_critical_height"] - parameters_dict["initialization_amplitude"]
+        else
+            parameters_dict["boundary_layer"] ? parameters_dict["convection_critical_height"] - 1.0 : parameters_dict["convection_critical_height"] + 1.0
+        end
+    end
+    
     uh, vh, h = model.solution
 
     ## Build velocities
@@ -56,8 +65,14 @@ function run_shallow_simulation(parameters_dict)
 
 
     # and finally set the "true" initial condition with noise,
-
-    set!(model, uh = uhⁱ, h = h̄)
+    
+    if parameters_dict["initialization_style"] == "rand"
+        set!(model, uh = uhⁱ, h = h0_rand)
+    elseif parameters_dict["initialization_style"] == "one_convecting_point"
+        set!(model, uh = uhⁱ, h = h0_one_convecting_point)
+    else 
+        error("Intialization style must be either \"rand\" or \"one_convecting_point\"")
+    end
     set!(mean_h,mean(h))
 
 
@@ -76,7 +91,7 @@ function run_shallow_simulation(parameters_dict)
     simulation.callbacks[:progress] = Callback(progress, IterationInterval(100))
     simulation.callbacks[:update_convective_helper_arrays] = Callback(update_convective_helper_arrays, IterationInterval(1); parameters)
     #prepare output files
-    outputfilename = haskey(parameters_dict, output_filename) ? parameters_dict["output_filename"] : savename(shorten_names(parameters_dict, short_parameter_names), ignores=("architecture","g","Lx","Nx","output_interval_in_seconds", "simulation_length_in_days", "timestep_in_seconds", "output_filename"))
+    outputfilename = haskey(parameters_dict, "output_filename") ? parameters_dict["output_filename"] : savename(shorten_names(parameters_dict, short_parameter_names), ignores=("architecture","g","Lx","Nx","output_interval_in_seconds", "simulation_length_in_days", "timestep_in_seconds", "output_filename", "initialization_amplitude", "initialization_style"))
     simulation.output_writers[:fields] =
         NetCDFOutputWriter(
             model,
