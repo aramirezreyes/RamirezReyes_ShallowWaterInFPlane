@@ -8,7 +8,7 @@ function run_shallow_simulation(parameters_dict)
     elseif parameters_dict["architecture"] == "GPU"
         GPU()
     end
-    @info "Using architecture: ", architecture
+    @info "Using architecture: $(string(architecture))..."
 
     simulation_length = parameters_dict["simulation_length_in_days"]
     save_every = parameters_dict["output_interval_in_seconds"]
@@ -19,7 +19,7 @@ function run_shallow_simulation(parameters_dict)
                            x = (0, parameters_dict["Lx"]), y = (0, parameters_dict["Ly"]),
                            topology = (Periodic, Periodic, Flat), halo = (nghosts, nghosts))
 
-    @info "Built grid successfully"
+#    @info "Building grid..."
 
     isconvecting, mean_h, parameters = build_convective_parameterization_tools(grid, parameters_dict)
 
@@ -73,7 +73,7 @@ function run_shallow_simulation(parameters_dict)
     else 
         error("Intialization style must be either \"rand\" or \"one_convecting_point\"")
     end
-    set!(mean_h,mean(h))
+    mean!(mean_h,h)
 
 
     #Create the simulation
@@ -103,5 +103,5 @@ function run_shallow_simulation(parameters_dict)
     
     
     run!(simulation)
-    
+    @info "Simulation finished in $(prettytime(simulation.run_wall_time))."
 end #runsimulation
