@@ -18,6 +18,8 @@ parameters = Dict(
     "Nx" => 250,
     "Ny" => 250,
     "boundary_layer" => true, #if true Lz=30 otherwise Lz = 41
+    "initialization_style" => "rand",
+    "initialization_amplitude" => 4.0,
     "simulation_length_in_days" => 86400.0*20,
     "output_interval_in_seconds" => 7200, 
     "timestep_in_seconds" => 60.0,
