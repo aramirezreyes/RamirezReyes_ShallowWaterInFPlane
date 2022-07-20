@@ -211,13 +211,15 @@ This is an interface with the correct signature to register the convective param
 It also adds the radiative cooling and the relaxation in the height field with a given timescale.
 """
 function model_forcing(i,j,k,grid,clock,model_fields,parameters)
+    @inbounds target_height = isnothing(parameters.relaxation_height) ? parameters.mean_h[1] : parameters.relaxation_height
     boundary_layer = parameters.boundary_layer
-    radiative_cooling_rate = boundary_layer ? parameters.radiative_cooling_rate : -1*parameters.radiative_cooling_rate
-    heat_at_point(i,j,k,clock.time,
-                      parameters.τ_c,
+    large_scale_forcing = boundary_layer ? parameters.large_scale_forcing : -1*parameters.large_scale_forcing
+    @inbounds heat_at_point(i,j,k,clock.time,
+                      parameters.convection_timescale,
                       parameters.isconvecting,
                       parameters.convection_triggered_time,
                       parameters.nghosts,
-                      parameters.heating_stencil,parameters.boundary_layer) + radiative_cooling_rate - (model_fields.h[i,j,k] - parameters.relaxation_height)*parameters.relaxation_parameter
+                      parameters.heating_stencil,parameters.boundary_layer) + large_scale_forcing - (model_fields.h[i,j,k] - target_height)*parameters.relaxation_parameter
 end
+
 

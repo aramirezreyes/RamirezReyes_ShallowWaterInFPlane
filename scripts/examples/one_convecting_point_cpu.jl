@@ -5,8 +5,8 @@
 # ΔH = 1/3 q0 
 
 parameters = Dict(
-    "architecture" => "GPU",
-    "output_filename" => "one_convecting_point_GPU",
+    "architecture" => "CPU",
+    "output_filename" => "one_convecting_point_CPU",
     "f" => 0.0,# coriolis parameter5e-4 #5e-4
     "g" => 0.0,#gravitational acceleration 9.8
     "convection_timescale" => 1000.0, #convective time scale
