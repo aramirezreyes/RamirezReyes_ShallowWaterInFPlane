@@ -91,7 +91,7 @@ function run_shallow_simulation(parameters_dict)
     simulation.callbacks[:progress] = Callback(progress, IterationInterval(100))
     simulation.callbacks[:update_convective_helper_arrays] = Callback(update_convective_helper_arrays, IterationInterval(1); parameters)
     #prepare output files
-    outputfilename = haskey(parameters_dict, "output_filename") ? parameters_dict["output_filename"] : savename(shorten_names(parameters_dict, short_parameter_names), ignores=("architecture","g","Lx","Nx","output_interval_in_seconds", "simulation_length_in_days", "timestep_in_seconds", "output_filename", "initialization_amplitude", "initialization_style"))
+    outputfilename = haskey(parameters_dict, "output_filename") ? parameters_dict["output_filename"] : savename(shorten_names(parameters_dict, short_parameter_names), ignores=("arch","g","Lx","Nx","output_interval_in_seconds", "simulation_length_in_days", "timestep_in_seconds", "output_filename", "initialization_amplitude", "initialization_style"))
     simulation.output_writers[:fields] =
         NetCDFOutputWriter(
             model,
