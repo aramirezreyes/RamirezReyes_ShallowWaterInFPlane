@@ -223,3 +223,23 @@ function model_forcing(i,j,k,grid,clock,model_fields,parameters)
 end
 
 
+"""
+    model_forcing(i,j,k,grid,clock,model_fields,parameters)
+This is an interface with the correct signature to register the convective parameterization to Oceananigans.jl
+It does not apply large scape forcing nor damping.
+"""
+@kernel function model_forcing_only_convec!(convec_heating,clock,parameters)
+    i, j, k = @index(Global, NTuple)
+    @inbounds convec_heating[i, j, k] = heat_at_point(i,j,k,clock.time,
+                      parameters.convection_timescale,
+                      parameters.isconvecting,
+                      parameters.convection_triggered_time,
+                      parameters.nghosts,
+                      parameters.heating_stencil,parameters.boundary_layer)
+end
+
+function fill_convec_heating!(convec_heating, grid, clock, parameters)
+    event = launch!(grid.architecture, grid, :xyz, model_forcing_only_convec!,convec_heating, clock, parameters)
+    wait(event)
+    return convec_heating
+end
