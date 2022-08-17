@@ -100,7 +100,9 @@ function run_shallow_simulation(parameters_dict)
             dir = datadir(),
             filename = outputfilename*".nc",
             schedule = TimeInterval(save_every),
-            overwrite_existing = true)
+            overwrite_existing = true,
+            compression = 1,
+        )
     
     
     run!(simulation)
