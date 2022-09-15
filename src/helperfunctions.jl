@@ -34,7 +34,7 @@ function build_convective_parameterization_tools(grid, parameters)
     Δx2                        = (grid.Δxᶜᵃᵃ)^2
     Δy2                        = (grid.Δyᵃᶜᵃ)^2
     @assert Δx2 == Δy2
-    nghosts                    = Int(convective_radius ÷ grid.Δxᶜᵃᵃ) - 1
+    nghosts                    = Int(convective_radius ÷ grid.Δxᶜᵃᵃ)
 
     isconvecting               = CenterField(grid,Bool)
     convection_triggered_time  = CenterField(grid)
@@ -55,7 +55,7 @@ function compute_nghosts(parameters)
     Nx = parameters["Nx"]
     convective_radius = parameters["convective_radius"]
     grid_spacing_x = Lx ÷ Nx #These two need to be equal for x and y!
-    nghosts = max(Int(convective_radius ÷ grid_spacing_x), 3)
+    nghosts = max(Int(convective_radius ÷ grid_spacing_x + 1), 3)
     return nghosts
 end
 
