@@ -32,9 +32,9 @@ function run_shallow_simulation(parameters_dict)
 
     model = ShallowWaterModel(;grid=grid,
                             timestepper=:RungeKutta3,
-                            momentum_advection=WENO5(grid=grid),
-                            mass_advection=WENO5(grid=grid),
-                            tracer_advection=WENO5(grid=grid),
+                            momentum_advection=WENO(grid=grid),
+                            mass_advection=WENO(grid=grid),
+                            tracer_advection=WENO(grid=grid),
                             gravitational_acceleration=parameters_dict["g"],
                             coriolis=FPlane(f=parameters_dict["f"]),
                             forcing=(h=convec_forcing,u = u_forcing, v = v_forcing)
