@@ -60,10 +60,11 @@ Returns the organization index, iorg, as defined by Tompkins and Semie (2017). T
 Tompkins, A. M., & Semie, A. G. (2017). Organization of tropical convection in low vertical wind shears: Role of updraft entrainment. Journal of Advances in Modeling Earth Systems, 9(2), 1046–1068. https://doi.org/10.1002/2016MS000802
 
 """
-function compute_iorg(array::AbstractArray{Bool,3},x,y,Lx,Ly, updraft_density = count(array[:,:,end])/Lx*Ly) 
-    ## Next r_max comes from trying to estimate a maximum radius to which the NNCDF of poisson-distributed points comes close to 1.0  
-    rmax = -1 * log(0.001) /(updraft_density * π)
+function compute_iorg(array::AbstractArray{Bool,3},x,y,Lx,Ly, updraft_density = count(array[:,:,end])/(Lx*Ly)) 
+    ## Next r_max comes from trying to estimate a radius to which the NNCDF of poisson-distributed points comes close to 1.0 for a given mean density 
+    rmax = sqrt(-1 * log(0.001) /(updraft_density * π))
     r = range(0, stop = rmax,length = 100)
+    #dr = r[2] - r[1]
     nncdf_poisson = nncdf_poisson_func.(updraft_density,r)
     distances = Float64[]
     for arr_2d in eachslice(array,dims=3)

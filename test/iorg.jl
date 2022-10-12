@@ -10,8 +10,8 @@ uniform_convec = zeros(Bool,500,500,100)
 uniform_convec[1:100:end,1:100:end,:] .= true
 
 ## rand(Nx,Ny) .> 0.5 will have around 0.5*Nx*Ny positives. rand(Nx,Ny) .> 0.10 will have around 0.9*Nx*Ny so (1.0 - threshold)*Nx*Ny 
-random_scarce = (rand(500,500,100) .> 0.99) # rand is in (0,1)
-random_abundant =  (rand(500,500,100) .> 0.9); # rand is in (0,1)
+random_scarce = (rand(500,500,10) .> 0.99) # rand is in (0,1)
+random_abundant =  (rand(500,500,10) .> 0.9); # rand is in (0,1)
 # clustered_convec = zeros(Bool,500,500,100)
 # clustered_convec[1:10,1:10, rand(1:100)] .= true
 # clustered_convec[2:30,20:30,rand(1:100)] .= true
@@ -20,12 +20,14 @@ random_abundant =  (rand(500,500,100) .> 0.9); # rand is in (0,1)
 Lx = Ly = 5e5
 x_coords = y_coords = range(0.0, stop = Lx, length = 500)
 distances,r,x,y,iorg = compute_iorg(uniform_convec,x_coords,y_coords,Lx,Ly)
+@test iorg < 0.5
 #lineplot(y,x)
-# distances,r,x,y,iorg = compute_iorg(clustered_convec,x_coords,y_coords,Lx,Ly)
+#distances,r,x,y,iorg = compute_iorg(clustered_convec,x_coords,y_coords,Lx,Ly)
 #lineplot(y,x)
-#distances,r,x,y,iorg = compute_iorg(random_scarce,x_coords,y_coords,Lx,Ly)
+distances,r,x,y,iorg = compute_iorg(random_scarce,x_coords,y_coords,Lx,Ly)
+@test isapprox(iorg, 0.5, rtol = 0.15)
 # lineplot(y,x)
-# distances,r,x,y,iorg = compute_iorg(random_abundant,x_coords,y_coords,Lx,Ly)
+#distances,r,x,y,iorg = compute_iorg(random_abundant,x_coords,y_coords,Lx,Ly)
 # lineplot(y,x)
 
 
