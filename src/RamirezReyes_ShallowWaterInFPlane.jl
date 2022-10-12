@@ -8,6 +8,8 @@ using Reexport
 @reexport using DrWatson
 @reexport using Statistics: mean!, mean
 @reexport using KernelAbstractions: @index, @kernel, Event
+@reexport using StatsBase: ecdf
+@reexport using ImageMorphology: label_components
 import CUDA
 
 
@@ -21,6 +23,9 @@ include(joinpath(@__DIR__,"../src/run_oceananigans_simulation.jl"))
 ## Data analysis and file management
 
 include(joinpath(@__DIR__,"../src/DataAnalysis/explorefoldersandfiles.jl"))
+
+include(joinpath(@__DIR__,"../src/DataAnalysis/iorg.jl"))
+
 
 
 
@@ -47,7 +52,10 @@ count_last_convecting,
 read_sim_length,
 maximum_abs_vorticity_perturb,
 maximum_sp,
-parse_params_from_filenames
-
+parse_params_from_filenames,
+compute_distances,
+compute_iorg,
+detect_updraft_clusters,
+find_cluster_centroid
 
 end
