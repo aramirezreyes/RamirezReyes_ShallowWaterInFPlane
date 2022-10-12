@@ -28,17 +28,18 @@ end
 
 Receive an array of 2-tuple with coordinatess of points. Return an array with the distance of each point to it's closes neighbohr.   
 """
-function compute_distances(centroids)
-    distances = Float64[]
-    compute_distances!(distances,centroids)
+function compute_distances(centroids,r)
+    distances = zeros(Int,r.len)
+    compute_distances!(distances,centroids,r)
 end
 
 """
-    compute_distances!(distances,centroids)
+    compute_distances!(distances,centroids,r)
 
-Receive a vector of distances and an array of 2-tuples with coordinates of points. Adds to the distances array the distance of each point to it's closes neighbohr. 
+Receive a vector of bins (distances), an array of 2-tuples with coordinates of points and a `range` of possible nearest-neighbor distances. Counts how many occurrences of each distance appear.
 """
-function compute_distances!(distances,centroids)
+function compute_distances!(distances,centroids,r)
+    dr = r[2] - r[1]
     for point in centroids
         distance = Inf
         for neighbor in centroids
@@ -46,7 +47,9 @@ function compute_distances!(distances,centroids)
             newdistance = compute_distance(point,neighbor)
             distance = newdistance < distance ? newdistance : distance
         end
-        push!(distances,distance)
+        distance_index = ceil(Int,distance/dr)
+        distance_index > r.len && continue
+        distances[distance_index] += 1
     end
     return distances
 end
@@ -57,6 +60,8 @@ end
 Receive a 3-d array of booleans on the form (x,y,t), vectors for the x and y coordinates, and Lx, Ly the length of the domain in each direction.
 Returns the organization index, iorg, as defined by Tompkins and Semie (2017). The assumption is that each `true` value in the array represents an updraft obtained elswhere by the user.
 
+If updraft_density is not passed, this assumes that the simulation is in steady state and that the point density of the last frame is representative of the simulation.
+
 Tompkins, A. M., & Semie, A. G. (2017). Organization of tropical convection in low vertical wind shears: Role of updraft entrainment. Journal of Advances in Modeling Earth Systems, 9(2), 1046–1068. https://doi.org/10.1002/2016MS000802
 
 """
@@ -64,19 +69,35 @@ function compute_iorg(array::AbstractArray{Bool,3},x,y,Lx,Ly, updraft_density = 
     ## Next r_max comes from trying to estimate a radius to which the NNCDF of poisson-distributed points comes close to 1.0 for a given mean density 
     rmax = sqrt(-1 * log(0.001) /(updraft_density * π))
     r = range(0, stop = rmax,length = 100)
-    #dr = r[2] - r[1]
     nncdf_poisson = nncdf_poisson_func.(updraft_density,r)
-    distances = Float64[]
+    distances_count = zeros(Int,r.len)
     for arr_2d in eachslice(array,dims=3)
         clusters = detect_updraft_clusters(arr_2d)
         centroids = map(cluster -> find_cluster_centroid(cluster,x, y), clusters)
-        compute_distances!(distances,centroids)
+        compute_distances!(distances_count,centroids,r)
     end
-    nncfd_data_func = ecdf(distances)
+    nncdf_data_func = ecdf(r,weights = distances_count)
     #npoints unit area
-    nncdf_data = nncfd_data_func.(r)
+    nncdf_data = nncdf_data_func.(r)
     iorg = 0.5*sum((nncdf_data[1:end-1] .+ nncdf_data[2:end]) .* (nncdf_poisson[2:end] .- nncdf_poisson[1:end-1]))
-    return distances,r,nncdf_data, nncdf_poisson, iorg
+    return distances_count,r,nncdf_data, nncdf_poisson, iorg
+end
+
+
+function compute_iorg(array::AbstractArray{Bool,2},x,y,Lx,Ly, updraft_density = count(array[:,:])/(Lx*Ly)) 
+    ## Next r_max comes from trying to estimate a radius to which the NNCDF of poisson-distributed points comes close to 1.0 for a given mean density 
+    rmax = sqrt(-1 * log(0.001) /(updraft_density * π))
+    r = range(0, stop = rmax,length = 100)
+    nncdf_poisson = nncdf_poisson_func.(updraft_density,r)
+    distances_count = zeros(Int,r.len)
+    clusters = detect_updraft_clusters(array)
+    centroids = map(cluster -> find_cluster_centroid(cluster,x, y), clusters)
+    compute_distances!(distances_count,centroids,r)
+    nncdf_data_func = ecdf(r,weights = distances_count)
+    #npoints unit area
+    nncdf_data = nncdf_data_func.(r)
+    iorg = 0.5*sum((nncdf_data[1:end-1] .+ nncdf_data[2:end]) .* (nncdf_poisson[2:end] .- nncdf_poisson[1:end-1]))
+    return distances_count,r,nncdf_data, nncdf_poisson, iorg
 end
 
 
