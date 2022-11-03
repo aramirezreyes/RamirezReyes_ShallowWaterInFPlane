@@ -37,7 +37,8 @@ function run_shallow_simulation(parameters_dict)
                             tracer_advection=WENO(grid=grid),
                             gravitational_acceleration=parameters_dict["g"],
                             coriolis=FPlane(f=parameters_dict["f"]),
-                            forcing=(h=convec_forcing,u = u_forcing, v = v_forcing)
+                            forcing=(h=convec_forcing,u = u_forcing, v = v_forcing),
+                            closure = ShallowWaterScalarDiffusivity(ν = parameters_dict["ν"] )
                             )
 
     uhⁱ(x, y, z) = 0.0 
