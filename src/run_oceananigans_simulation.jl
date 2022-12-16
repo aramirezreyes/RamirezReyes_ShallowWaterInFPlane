@@ -50,6 +50,38 @@ function run_shallow_simulation(parameters_dict)
             parameters_dict["boundary_layer"] ? parameters_dict["convection_critical_height"] - 1.0 : parameters_dict["convection_critical_height"] + 1.0
         end
     end
+
+    function rankine_vortex(center, radius, amplitude, h0)
+        
+        function vortex_maker_u(x,y,z)
+            amplitude2 = amplitude
+            x_relative = (x - center[1])
+            y_relative = (y - center[2])
+            dist_from_center = hypot(x_relative,y_relative)
+            theta = atan(y_relative,x_relative)
+            if dist_from_center <= radius
+                return -amplitude2 * h0 * dist_from_center/radius^2 * dist_from_center*sin(theta)
+            else
+                return -amplitude2 * h0 * sin(theta)
+            end
+        end
+
+
+        function vortex_maker_v(x,y,z)
+            amplitude2 = amplitude
+            x_relative = (x - center[1])
+            y_relative = (y - center[2])
+            dist_from_center = hypot(x_relative,y_relative)
+            theta = atan(y_relative,x_relative)
+            if dist_from_center <= radius
+                return amplitude2 * h0 * dist_from_center/radius^2 * dist_from_center*cos(theta)
+            else
+                return amplitude2 * h0 * cos(theta)
+            end
+        end
+
+        return (vortex_maker_u,vortex_maker_v)
+    end
     
     uh, vh, h = model.solution
 
@@ -70,6 +102,9 @@ function run_shallow_simulation(parameters_dict)
         set!(model, uh = uhⁱ, h = h0_rand)
     elseif parameters_dict["initialization_style"] == "one_convecting_point"
         set!(model, uh = uhⁱ, h = h0_one_convecting_point)
+    elseif parameters_dict["initialization_style"] == "rankine_vortex"
+        u_maker,v_maker = rankine_vortex(parameters_dict["rankine_center"],parameters_dict["rankine_radius"],parameters_dict["rankine_amplitude"],parameters_dict["Lz"])
+        set!(model, uh = u_maker, vh = v_maker, h = h0_rand)
     else 
         error("Intialization style must be either \"rand\" or \"one_convecting_point\"")
     end
