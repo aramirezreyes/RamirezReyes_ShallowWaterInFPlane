@@ -62,7 +62,7 @@ function run_shallow_simulation(parameters_dict)
             if dist_from_center <= radius
                 return -amplitude2 * h0 * dist_from_center/radius^2 * dist_from_center*sin(theta)
             else
-                return -amplitude2 * h0 * sin(theta)
+                return -amplitude2 * h0 * sin(theta) * radius / dist_from_center
             end
         end
 
@@ -76,7 +76,7 @@ function run_shallow_simulation(parameters_dict)
             if dist_from_center <= radius
                 return amplitude2 * h0 * dist_from_center/radius^2 * dist_from_center*cos(theta)
             else
-                return amplitude2 * h0 * cos(theta)
+                return amplitude2 * h0 * cos(theta) * radius / dist_from_center
             end
         end
 
