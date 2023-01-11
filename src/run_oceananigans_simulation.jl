@@ -95,8 +95,9 @@ function run_shallow_simulation(parameters_dict)
     simulation.callbacks[:progress] = Callback(progress, IterationInterval(100))
     simulation.callbacks[:update_convective_helper_arrays] =
         Callback(update_convective_helper_arrays, IterationInterval(1); parameters)
-    simulation.callbacks[:update_convec_heating] =
-        Callback(update_convec_heating, TimeInterval(save_every); parameters)
+    convec_heating_f = model -> convective_heating_output(model, parameters)
+#    simulation.callbacks[:update_convec_heating] =
+#        Callback(update_convec_heating, TimeInterval(save_every); parameters)
     #prepare output files
     outputfilename =
         haskey(parameters_dict, "output_filename") ? parameters_dict["output_filename"] :
@@ -121,17 +122,18 @@ function run_shallow_simulation(parameters_dict)
             h = h,
             v = v,
             u = u,
-            isconvecting = isconvecting = isconvecting,
+            isconvecting = isconvecting,
             ω = ω,
             sp = sp,
             diver = diver,
-            convec_heating = convec_heating,
+            convec_heating = convec_heating_f,
         ),
         dir = datadir(),
         filename = outputfilename * ".nc",
         schedule = TimeInterval(save_every),
         overwrite_existing = true,
         compression = 1,
+        dimensions = Dict("convec_heating" => ("xC","yC","zC"))
     )
 
 

@@ -34,6 +34,21 @@ function update_convec_heating(sim, parameters)
     )
 end
 
+function convective_heating_output(model, parameters)
+    p = parameters
+    m = model
+    set!(p.convec_heating, 0.0)
+    #RamirezReyes_ShallowWaterInFPlane.fill_convec_heating!(
+    #    p.convec_heating,
+    #    m.grid,
+    #    m.clock,
+    #    p,
+    #)
+    event = launch!(model.architecture, model.grid, :xyz, model_forcing_only_convec!, p.convec_heating, model.clock, p)
+    wait(event)
+    return p.convec_heating
+end
+
 function build_convective_parameterization_tools(grid, parameters)
     p = parameters
 

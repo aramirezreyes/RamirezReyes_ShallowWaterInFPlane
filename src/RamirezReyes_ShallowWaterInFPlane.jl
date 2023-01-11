@@ -31,6 +31,7 @@ include(joinpath(@__DIR__, "../src/DataAnalysis/iorg.jl"))
 
 
 export update_convective_helper_arrays,
+    convective_heating_output,
     compute_nghosts,
     shorten_names,
     short_parameter_names,
