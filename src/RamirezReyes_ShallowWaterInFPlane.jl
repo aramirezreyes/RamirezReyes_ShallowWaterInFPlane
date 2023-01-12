@@ -3,7 +3,7 @@ using Reexport
 @reexport using Printf
 @reexport using Oceananigans
 @reexport using Oceananigans.Utils: launch!
-@reexport using CUDA: @cuda, blockIdx, blockDim, threadIdx, gridDim, launch_configuration
+@reexport using CUDA: @cuda, blockIdx, blockDim, threadIdx, gridDim, launch_configuration, adapt
 @reexport using LoopVectorization: @turbo, @tturbo
 @reexport using DrWatson
 @reexport using Statistics: mean!, mean

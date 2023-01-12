@@ -46,7 +46,7 @@ function convective_heating_output(model, parameters)
     #)
     event = launch!(model.architecture, model.grid, :xyz, model_forcing_only_convec!, p.convec_heating, model.clock, p)
     wait(event)
-    return p.convec_heating
+    return adapt(Array,interior(p.convec_heating))
 end
 
 function build_convective_parameterization_tools(grid, parameters)
