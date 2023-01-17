@@ -138,7 +138,7 @@ end
 Returns a dictionary with a set of parameters for the debug simulation.
 
 """
-function create_debug_parameters(arch::AbstractString, ultrashort = true)
+function create_debug_parameters(arch::AbstractString; ultrashort = true, restart = false)
 
     parameters_dict = Dict{String,Union{Nothing,Real,String}}(
         "architecture" => arch,
@@ -163,6 +163,26 @@ function create_debug_parameters(arch::AbstractString, ultrashort = true)
         "simulation_length_in_days" => ultrashort ? 100 / 86400 : 10000 / 86400,
         "output_interval_in_seconds" => 5,
         "timestep_in_seconds" => 5,
+        "restart" => false,
+        "checkpoint_interval_in_seconds" => 5,
     )
+
+    if restart
+        parameters_dict["restart"] = true
+        parameters_dict["simulation_length_in_days"] = 2*parameters_dict["simulation_length_in_days"]
+    end
+
     return parameters_dict
+end
+
+
+function restore_helper_fields!(isconvecting,convection_triggered_time)
+    jldopen(joinpath(datadir(),"model_checkpoint_helper_arrays.jld2"), "r") do file
+        last_timestep = last(keys(file["timeseries/isconvecting"]))
+        isconvecting_r = file["timeseries/isconvecting"][last_timestep]
+        convection_triggered_time_r = file["timeseries/convection_triggered_time"][last_timestep]
+        copyto!(isconvecting.data.parent, isconvecting_r[:,:,1])
+        copyto!(convection_triggered_time.data.parent, convection_triggered_time_r[:,:,1])
+    end
+    nothing
 end

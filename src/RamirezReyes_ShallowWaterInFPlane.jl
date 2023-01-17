@@ -10,6 +10,7 @@ using Reexport
 @reexport using KernelAbstractions: @index, @kernel, Event
 @reexport using StatsBase: ecdf
 @reexport using ImageMorphology: label_components
+@reexport using JLD2: jldopen
 import CUDA
 
 
@@ -17,6 +18,7 @@ using ImageFiltering, NetCDF
 
 include(joinpath(@__DIR__, "../src/convectiveparameterization.jl"))
 include(joinpath(@__DIR__, "../src/helperfunctions.jl"))
+include(joinpath(@__DIR__, "../src/oceananigans_checkpointing.jl"))
 include(joinpath(@__DIR__, "../src/initialconditions.jl"))
 include(joinpath(@__DIR__, "../src/run_oceananigans_debug_run.jl"))
 include(joinpath(@__DIR__, "../src/run_oceananigans_simulation.jl"))
