@@ -13,6 +13,8 @@ function run_shallow_simulation(parameters_dict)
     simulation_length = parameters_dict["simulation_length_in_days"]
     save_every = parameters_dict["output_interval_in_seconds"]
     timestep = parameters_dict["timestep_in_seconds"]
+    pickup = parameters_dict["restart"]
+    checkpoint_interval = parameters_dict["checkpoint_interval_in_seconds"]
 
     nghosts = compute_nghosts(parameters_dict)
     grid = RectilinearGrid(
@@ -116,27 +118,49 @@ function run_shallow_simulation(parameters_dict)
                 "initialization_style",
             ),
         )
+    overwrite_existing_file = pickup ? false : true
     simulation.output_writers[:fields] = NetCDFOutputWriter(
         model,
         (
             h = h,
             v = v,
             u = u,
-            isconvecting = isconvecting,
             ω = ω,
             sp = sp,
-            diver = diver,
             convec_heating = convec_heating_f,
         ),
         dir = datadir(),
         filename = outputfilename * ".nc",
         schedule = TimeInterval(save_every),
-        overwrite_existing = true,
+        overwrite_existing = overwrite_existing_file,
         compression = 1,
         dimensions = Dict("convec_heating" => ("xC","yC","zC"))
     )
+    #### CHECKPOINTERS
+    simulation.output_writers[:checkpointer] = Checkpointer(model,dir = datadir(),
+     schedule=TimeInterval(checkpoint_interval), prefix="model_checkpoint",
+     properties = [:architecture, :grid, :clock, :coriolis, :closure, :velocities, 
+     :tracers, :timestepper])
+
+    if pickup
+        restore_helper_fields!(isconvecting,parameters.convection_triggered_time)
+    end
+    simulation.output_writers[:checkpointer_helpers] = JLD2OutputWriter(
+        model,
+        (;
+            isconvecting = isconvecting,
+            convection_triggered_time = parameters.convection_triggered_time,
+        ),
+        dir = datadir(),
+        filename = "model_checkpoint_helper_arrays",
+        schedule = TimeInterval(checkpoint_interval),
+        overwrite_existing = true,
+        with_halos = true,
+        )
 
 
-    run!(simulation)
+   
+
+    run!(simulation; pickup)
     @info "Simulation finished in $(prettytime(simulation.run_wall_time))."
 end #runsimulation

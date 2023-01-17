@@ -10,6 +10,7 @@ using Reexport
 @reexport using KernelAbstractions: @index, @kernel, Event
 @reexport using StatsBase: ecdf
 @reexport using ImageMorphology: label_components
+@reexport using JLD2: jldopen
 import CUDA
 
 

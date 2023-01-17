@@ -163,6 +163,20 @@ function create_debug_parameters(arch::AbstractString, ultrashort = true)
         "simulation_length_in_days" => ultrashort ? 100 / 86400 : 10000 / 86400,
         "output_interval_in_seconds" => 5,
         "timestep_in_seconds" => 5,
+        "restart" => false,
+        "checkpoint_interval_in_seconds" => 86400.0*5,
     )
     return parameters_dict
+end
+
+
+function restore_helper_fields!(isconvecting,convection_triggered_time)
+    jldopen(joinpath(datadir(),"model_checkpoint_helper_arrays.jld2"), "r") do file
+        last_timestep = last(keys(file["timeseries/isconvecting"]))
+        isconvecting_r = file["timeseries/isconvecting"][last_timestep]
+        convection_triggered_time_r = file["timeseries/convection_triggered_time"][last_timestep]
+        copyto!(isconvecting.data.parent, isconvecting_r[:,:,1])
+        copyto!(convection_triggered_time.data.parent, convection_triggered_time_r[:,:,1])
+    end
+    nothing
 end
