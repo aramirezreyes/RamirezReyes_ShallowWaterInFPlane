@@ -6,3 +6,4 @@
 *.mp4
 *.DS_Store
 LocalPreferences.toml
+*.jld2
