@@ -138,7 +138,7 @@ end
 Returns a dictionary with a set of parameters for the debug simulation.
 
 """
-function create_debug_parameters(arch::AbstractString, ultrashort = true)
+function create_debug_parameters(arch::AbstractString; ultrashort = true, restart = false)
 
     parameters_dict = Dict{String,Union{Nothing,Real,String}}(
         "architecture" => arch,
@@ -164,8 +164,14 @@ function create_debug_parameters(arch::AbstractString, ultrashort = true)
         "output_interval_in_seconds" => 5,
         "timestep_in_seconds" => 5,
         "restart" => false,
-        "checkpoint_interval_in_seconds" => 86400.0*5,
+        "checkpoint_interval_in_seconds" => 5,
     )
+
+    if restart
+        parameters_dict["restart"] = true
+        parameters_dict["simulation_length_in_days"] = 2*parameters_dict["simulation_length_in_days"]
+    end
+
     return parameters_dict
 end
 

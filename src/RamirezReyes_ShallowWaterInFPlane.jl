@@ -18,6 +18,7 @@ using ImageFiltering, NetCDF
 
 include(joinpath(@__DIR__, "../src/convectiveparameterization.jl"))
 include(joinpath(@__DIR__, "../src/helperfunctions.jl"))
+include(joinpath(@__DIR__, "../src/oceananigans_checkpointing.jl"))
 include(joinpath(@__DIR__, "../src/initialconditions.jl"))
 include(joinpath(@__DIR__, "../src/run_oceananigans_debug_run.jl"))
 include(joinpath(@__DIR__, "../src/run_oceananigans_simulation.jl"))
