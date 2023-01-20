@@ -176,8 +176,8 @@ function create_debug_parameters(arch::AbstractString; ultrashort = true, restar
 end
 
 
-function restore_helper_fields!(isconvecting,convection_triggered_time)
-    jldopen(joinpath(datadir(),"model_checkpoint_helper_arrays.jld2"), "r") do file
+function restore_helper_fields!(isconvecting,convection_triggered_time,filename)
+    jldopen(joinpath(datadir(),filename), "r") do file
         last_timestep = last(keys(file["timeseries/isconvecting"]))
         isconvecting_r = file["timeseries/isconvecting"][last_timestep]
         convection_triggered_time_r = file["timeseries/convection_triggered_time"][last_timestep]

@@ -138,12 +138,12 @@ function run_shallow_simulation(parameters_dict)
     )
     #### CHECKPOINTERS
     simulation.output_writers[:checkpointer] = Checkpointer(model,dir = datadir(),
-     schedule=TimeInterval(checkpoint_interval), prefix="model_checkpoint",
+     schedule=TimeInterval(checkpoint_interval), prefix="checkpoint_"*outputfilename*"_",
      properties = [:architecture, :grid, :clock, :coriolis, :closure, :velocities, 
      :tracers, :timestepper])
 
     if pickup
-        restore_helper_fields!(isconvecting,parameters.convection_triggered_time)
+        restore_helper_fields!(isconvecting,parameters.convection_triggered_time,"checkpoint_"*outputfilename*"_helper_arrays.jld2")
     end
     simulation.output_writers[:checkpointer_helpers] = JLD2OutputWriter(
         model,
@@ -152,7 +152,7 @@ function run_shallow_simulation(parameters_dict)
             convection_triggered_time = parameters.convection_triggered_time,
         ),
         dir = datadir(),
-        filename = "model_checkpoint_helper_arrays",
+        filename = "checkpoint_"*outputfilename*"_helper_arrays",
         schedule = TimeInterval(checkpoint_interval),
         overwrite_existing = true,
         with_halos = true,
