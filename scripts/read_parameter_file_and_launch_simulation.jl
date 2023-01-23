@@ -6,6 +6,8 @@ using DrWatson
 using RamirezReyes_ShallowWaterInFPlane
 
 params_file = ARGS[1]
+@info "I received:", ARGS
+@info "Reading file:", params_file
 params = load(projectdir("_research", "tmp", params_file), "params")
 @info params
 run_shallow_simulation(params)
