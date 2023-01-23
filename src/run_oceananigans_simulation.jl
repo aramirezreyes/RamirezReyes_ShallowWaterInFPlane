@@ -116,6 +116,8 @@ function run_shallow_simulation(parameters_dict)
                 "output_filename",
                 "initialization_amplitude",
                 "initialization_style",
+                "restart",
+                "checkpoint_interval_in_seconds",
             ),
         )
     overwrite_existing_file = pickup ? false : true
