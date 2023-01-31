@@ -129,6 +129,7 @@ function run_shallow_simulation(parameters_dict)
             u = u,
             ω = ω,
             sp = sp,
+            isconvecting = isconvecting,
             convec_heating = convec_heating_f,
         ),
         dir = datadir(),
