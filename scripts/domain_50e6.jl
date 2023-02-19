@@ -5,6 +5,8 @@ using DrWatson
 @quickactivate "RamirezReyes_ShallowWaterInFPlane"
 #using RamirezReyes_ShallowWaterInFPlane
 
+lz(bl, hc, ampl) = bl ? hc - ampl : hc + ampl 
+
 parameter_space = Dict(
     "architecture" => "GPU",
     "f" => 0.0,# coriolis parameter5e-4 #5e-4
@@ -21,10 +23,12 @@ parameter_space = Dict(
     "Ny" => 6000,
     "boundary_layer" => [true,false],
     "initialization_style" => "rand",
-    "initialization_amplitude" => 4.0,
+    "initialization_amplitude" => 0.01,
+    "Lz" => Derived(["boundary_layer","convection_critical_height","initialization_amplitude"], lz),
     "simulation_length_in_days" => 200,
     "output_interval_in_seconds" => 28800.0, 
     "timestep_in_seconds" => 60.0,
+    "relaxation_height" => nothing,
     "restart" => false,
     "checkpoint_interval_in_seconds" => 10*86400.0,
 
@@ -32,11 +36,6 @@ parameter_space = Dict(
 
 
 dicts = dict_list(parameter_space)
-
-map(dicts) do dict
-    dict["Lz"] = dict["boundary_layer"] ? dict["convection_critical_height"] - 3.9 :  dict["convection_critical_height"] + 3.9 
-    dict["relaxation_height"] = nothing
-end
 
 res = tmpsave(dicts)
 for r in Iterators.partition(res,4)
