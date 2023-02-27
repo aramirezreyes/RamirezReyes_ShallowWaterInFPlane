@@ -23,6 +23,7 @@ include(joinpath(@__DIR__, "../src/initialconditions.jl"))
 include(joinpath(@__DIR__, "../src/run_oceananigans_debug_run.jl"))
 include(joinpath(@__DIR__, "../src/run_oceananigans_simulation.jl"))
 
+include(joinpath(@__DIR__, "../src/arr_dissertation/ref_experiment.jl"))
 ## Data analysis and file management
 
 include(joinpath(@__DIR__, "../src/DataAnalysis/explorefoldersandfiles.jl"))
@@ -60,6 +61,7 @@ export update_convective_helper_arrays,
     compute_distances,
     compute_iorg,
     detect_updraft_clusters,
-    find_cluster_centroid
-
+    find_cluster_centroid,
+    ### dissertation
+    create_reference_experiment
 end
