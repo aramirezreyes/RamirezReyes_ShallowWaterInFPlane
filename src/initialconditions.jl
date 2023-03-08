@@ -8,6 +8,8 @@ function create_initialization_functions(grid, parameters_dict)
     elseif initialization_style == "rankine_vortex"
         uh_f, vh_f = rankine_vortex(p)
         return uh_f, vh_f, h0_rand(p)
+    elseif initialization_style == "gaussian"
+        return uhⁱ, uhⁱ, h0_gaussian(grid, p)
     else
         error("Intialization style must be either \"rand\" or \"one_convecting_point\"")
     end
@@ -82,4 +84,29 @@ function rankine_vortex(parameters_dict)
     end
 
     return (vortex_maker_u, vortex_maker_v)
+end
+
+"""
+following https://en.wikipedia.org/wiki/Gaussian_function#Two-dimensional_Gaussian_function
+
+"""
+function h0_gaussian(grid, parameters_dict)
+    
+    p = parameters_dict
+    isbl = p["boundary_layer"]
+    Δh = p["initialization_amplitude"]
+    sigmax = p["gaussian_sigma_x"]
+    sigmay = p["gaussian_sigma_y"] 
+    rot = p["gaussian_rotation"]
+    h0 = p["Lz"]
+
+    a = ((cosd(rot)^2) / (2*sigmax^2)) + ((sind(rot)^2) / (2*sigmay^2))
+    b = -((sind(2*rot)) / (4*sigmax^2)) + ((sind(2*rot)) / (4*sigmay^2))
+    c = ((sind(rot)^2) / (2*sigmax^2)) + ((cosd(rot)^2) / (2*sigmay^2))
+
+    function h(x, y, z)
+        x0 = grid.xᶜᵃᵃ[p["Nx"]÷2] 
+        y0 = grid.yᵃᶜᵃ[p["Ny"]÷2]
+        h0 +Δh*exp(-(a*(x - x0)^2 - 2*b*(x - x0)*(y - y0) + c*(y - y0)^2))    
+    end
 end
