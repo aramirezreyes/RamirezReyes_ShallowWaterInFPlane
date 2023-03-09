@@ -100,9 +100,9 @@ function h0_gaussian(grid, parameters_dict)
     rot = p["gaussian_rotation"]
     h0 = p["Lz"]
 
-    a = ((cosd(rot)^2) / (2*sigmax^2)) + ((sind(rot)^2) / (2*sigmay^2))
-    b = -((sind(2*rot)) / (4*sigmax^2)) + ((sind(2*rot)) / (4*sigmay^2))
-    c = ((sind(rot)^2) / (2*sigmax^2)) + ((cosd(rot)^2) / (2*sigmay^2))
+    a = ((cos(rot)^2) / (2*sigmax^2)) + ((sin(rot)^2) / (2*sigmay^2))
+    b = -((sin(2*rot)) / (4*sigmax^2)) + ((sin(2*rot)) / (4*sigmay^2))
+    c = ((sin(rot)^2) / (2*sigmax^2)) + ((cos(rot)^2) / (2*sigmay^2))
 
     function h(x, y, z)
         x0 = grid.xᶜᵃᵃ[p["Nx"]÷2] 
