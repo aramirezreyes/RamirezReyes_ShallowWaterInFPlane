@@ -1,5 +1,5 @@
 ###
-###This file reads a parameter file and runs a simulation. It is meant to be called from submit_simulations_sbatch.bash
+### This file reads a parameter file and runs a simulation. It is meant to be called from submit_simulations_sbatch.bash or submit_simulations_pbs.bash
 ###
 using DrWatson
 @quickactivate "RamirezReyes_ShallowWaterInFPlane"
