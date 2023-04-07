@@ -1,5 +1,5 @@
 ### This file is temporary, I will define constructors for checkpointers that work on the ShallowWaterModel.
-# This is type piracy and must go into a PR in Oceananigans
+# This is type piracy and must go into a PR in Oceananigans https://github.com/CliMA/Oceananigans.jl/pull/2868
 import Oceananigans.Fields: set!
 
 using Oceananigans: fields, prognostic_fields
