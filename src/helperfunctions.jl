@@ -1,3 +1,7 @@
+"""
+    update_convective_helper_arrays(sim, parameters)
+Updates the convective helper arrays on each model iteration.
+"""
 function update_convective_helper_arrays(sim, parameters)
     p = parameters
     m = sim.model
@@ -22,6 +26,10 @@ function update_convective_helper_arrays(sim, parameters)
     return nothing
 end
 
+"""
+    update_convec_heating(sim, parameters)
+Fills the convective heating array for output purposes.
+"""
 function update_convec_heating(sim, parameters)
     p = parameters
     m = sim.model
@@ -34,21 +42,23 @@ function update_convec_heating(sim, parameters)
     )
 end
 
+"""
+    convective_heating_output(model, parameters)
+Used by the output writer to create the convective heating in output file.
+"""
 function convective_heating_output(model, parameters)
     p = parameters
     m = model
     set!(p.convec_heating, 0.0)
-    #RamirezReyes_ShallowWaterInFPlane.fill_convec_heating!(
-    #    p.convec_heating,
-    #    m.grid,
-    #    m.clock,
-    #    p,
-    #)
     event = launch!(model.architecture, model.grid, :xyz, model_forcing_only_convec!, p.convec_heating, model.clock, p)
     wait(event)
     return adapt(Array,interior(p.convec_heating))
 end
 
+"""
+    build_convective_parameterization_tools(grid, parameters)
+Create auxiliary fields and parameters for convective parameterization.
+"""
 function build_convective_parameterization_tools(grid, parameters)
     p = parameters
 
@@ -103,6 +113,10 @@ function build_convective_parameterization_tools(grid, parameters)
     return isconvecting, mean_h, convec_heating, parameters
 end
 
+"""
+    compute_nghosts(parameters)
+Computes how many points are needed on the borders for periodicity. Only considers the size of convective events.
+"""
 function compute_nghosts(parameters)
     Lx = parameters["Lx"]
     Nx = parameters["Nx"]
@@ -112,6 +126,9 @@ function compute_nghosts(parameters)
     return nghosts
 end
 
+"""
+    List of short names for filename creation.
+"""
 const short_parameter_names = Dict(
     "architecture" => "arch",
     "convection_timescale" => "tauc",
@@ -124,12 +141,12 @@ const short_parameter_names = Dict(
     "boundary_layer" => "bl",
 )
 
-function short_name(name, short_names)
-    short_name = haskey(short_names, name) ? short_names[name] : name
-end
-
+"""
+    shorten_names(parameters, short_names)
+Receive a parameter dict and substitute keys for their short versions. Used to create a file name.
+"""
 function shorten_names(parameters, short_names)
-    return Dict((short_name(key, short_names), value) for (key, value) in parameters)
+    return Dict((get(short_names,key,key), value) for (key, value) in parameters)
 end
 
 
@@ -175,7 +192,10 @@ function create_debug_parameters(arch::AbstractString; ultrashort = true, restar
     return parameters_dict
 end
 
-
+"""
+    restore_helper_fields!(isconvecting,convection_triggered_time,filename)
+Reads checkpoint files for helper fields on restart.
+"""
 function restore_helper_fields!(isconvecting,convection_triggered_time,filename)
     jldopen(joinpath(datadir(),filename), "r") do file
         last_timestep = last(keys(file["timeseries/isconvecting"]))

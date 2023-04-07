@@ -5,8 +5,8 @@
 # ΔH = 1/3 q0 
 
 parameters = Dict(
-    "architecture" => "GPU",
-    "output_filename" => "one_convecting_point_ft_gpu",
+    "architecture" => "CPU",
+    "output_filename" => "one_convecting_point_ft_cpu",
     "f" => 0.0,
     "g" => 0.0,
     "convection_timescale" => 1000.0,

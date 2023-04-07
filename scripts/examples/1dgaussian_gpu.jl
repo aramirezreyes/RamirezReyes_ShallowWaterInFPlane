@@ -1,22 +1,18 @@
-# Goal of this script is validate the convective parameterization that we will use.
-# the first validation consists in measuring the mass added to the system by a convective event. This is based on Integrating equation 4 of
-#Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and the MJO: A Shallow-Water Model. J. Atmos. Sci., 70, 2476–2486, https://doi.org/10.1175/JAS-D-12-0255.1.
-# In which the mass added to the system after a convective event is equal to
-# ΔH = 1/3 q0 
+# This scripts is an example of using the gaussian initialization style in a very long channel geometry
 
 parameters = Dict(
     "architecture" => "GPU",
     "output_filename" => "1dgaussian_packet_gpu",
-    "f" => 0.0,# coriolis parameter5e-4 #5e-4
-    "g" => 10.0,#gravitational acceleration 9.8
-    "convection_timescale" => 1000.0, #convective time scale
-    "convection_critical_height" => 40.0, #convection_triggering height
-    "heating_amplitude" => 0.0,#1.0e9,#convective heating 1.0e9 #originally 9 for heating, -8 for cooling convective heating
-    "large_scale_forcing" => 0.0,#radiative cooling rate
-    "convective_radius" => 10_000, #convective radius
-    "relaxation_parameter" => 0.0, #relaxation timescale
+    "f" => 0.0,
+    "g" => 10.0,
+    "convection_timescale" => 1000.0, 
+    "convection_critical_height" => 40.0, 
+    "heating_amplitude" => 0.0,
+    "large_scale_forcing" => 0.0,
+    "convective_radius" => 10_000,
+    "relaxation_parameter" => 0.0, 
     "relaxation_height" => nothing, #height to relax to, if nothing, h relax to its mean
-    "Lx" => 3000_000, #domain                                                                      
+    "Lx" => 3000_000,                                                                     
     "Ly" => 30000,  
     "Lz" => 39.0,
     "Nx" => 300,
@@ -29,7 +25,7 @@ parameters = Dict(
     "gaussian_rotation" => 0.0,
     "restart" => false,
     "checkpoint_interval_in_seconds" => Inf,
-    "simulation_length_in_days" => 1,#2000 / 86400,
+    "simulation_length_in_days" => 1,
     "output_interval_in_seconds" => 20,
     "timestep_in_seconds" => 20,
 )
