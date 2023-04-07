@@ -1,3 +1,8 @@
+"""
+    function list_ncfiles(data_dir; filter_length = false, minimum_length = 0, filter_nconvectivepoints = false, min_convectivepoints = 90)
+Reads the names of netcds files on a directory and stores it in a vector. 
+Optionally, it discards simulations shorter than minimum_length time entries or with less than min_convectivepoints in the last timestep.
+"""
 function list_ncfiles(
     data_dir;
     filter_length = false,
@@ -19,7 +24,7 @@ function list_ncfiles(
         n_discarded_by_length = n_original_files - length(file_list)
     end
     if filter_nconvectivepoints
-        filter!(file -> (count_last_convecting(joinpath(data_dir, file)) > 90), file_list)
+        filter!(file -> (count_last_convecting(joinpath(data_dir, file)) > min_convectivepoints), file_list)
         n_discarded_by_nconvectivepoints =
             n_original_files - n_discarded_by_length - length(file_list)
     end
@@ -27,7 +32,10 @@ function list_ncfiles(
     return file_list
 end
 
-
+"""
+    read_last_time(file)
+Returns the last value in the time variable of `file` divided by 86400.
+"""
 function read_last_time(file)
     try
         NetCDF.open(file) do ds
@@ -95,6 +103,10 @@ function maximum_sp(file)
     end
 end
 
+"""
+    parse_params_from_filenames(file_list)
+Reverse engineers the file names and returns a list of parameters per file.
+"""
 function parse_params_from_filenames(file_list)
     nfiles = length(file_list)
     without_ext = splitext(file_list[1])[1]
