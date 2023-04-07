@@ -7,6 +7,7 @@ lz(bl, hc, ampl) = bl ? hc - ampl : hc + ampl
 
 # I am creating a dict of parameters. 
 # I use Derived when I want a parameter to be a function of another one (in this case Lz depends on wether we use the boundary layer formulation or not)
+# the form is Derived(list_of_arguments_to_pass_to_function, function)
 # I use an array when I want to explore different parameters. In this case I am only varying the Coriolis parameter
 
 parameter_space = Dict(
