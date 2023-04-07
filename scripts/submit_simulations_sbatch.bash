@@ -13,8 +13,9 @@
 
 export SLURM_CPU_BIND="cores"
 
-
-
+# This is an example script to launch 4 GPU simulation in a computer that uses the SLURM manager. If you use it you should also take a look at vary_coriolis_useslurm.jl
+# The goal is to use a different GPU for each simulation. To achieve this I use the srun launcher.
+# This as NERSC specific information as paths and accounts. I used it on the Perlmutter supercomputer.
 #### This file is meant to be called from create_parameters_and_submit_simulations.jl
 
 f1=$1
