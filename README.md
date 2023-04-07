@@ -1,7 +1,7 @@
 ## Parameterized convection on a shallow water model
 
-**Warning**
-If you are a dissertation committee member you should be checking the [arr_dissertation branch](https://github.com/aramirezreyes/RamirezReyes_ShallowWaterInFPlane/tree/arr_dissertation)
+> **Warning**
+> If you are a dissertation committee member you should be checking the [arr_dissertation branch](https://github.com/aramirezreyes/RamirezReyes_ShallowWaterInFPlane/tree/arr_dissertation)
 
 This project implements the convective parameterization of:
 
