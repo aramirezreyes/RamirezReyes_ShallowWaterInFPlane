@@ -1,5 +1,8 @@
 ## Parameterized convection on a shallow water model
 
+> **Warning**
+> If you are a dissertation committee member you should be checking the [arr_dissertation branch](https://github.com/aramirezreyes/RamirezReyes_ShallowWaterInFPlane/tree/arr_dissertation)
+
 This project implements the convective parameterization of:
 
 Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and the MJO: A Shallow-Water Model. J. Atmos. Sci., 70, 2476–2486, https://doi.org/10.1175/JAS-D-12-0255.1.

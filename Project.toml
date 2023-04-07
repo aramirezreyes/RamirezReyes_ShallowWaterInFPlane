@@ -4,12 +4,14 @@ authors = ["Argel Ramirez Reyes"]
 
 [deps]
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+CUDA_jll = "e9e359dc-d701-5aa8-82ae-09bbf812ea83"
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 DrWatson = "634d3b9d-ee7a-5ddf-bec9-22491ea816e1"
 ImageFiltering = "6a3955dd-da59-5b1f-98d4-e7296123deb5"
 ImageMorphology = "787d08f9-d448-5407-9aad-5290dd7ab264"
+JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 KernelAbstractions = "63c18a36-062a-441e-b654-da1e3ab1ce7c"
 LoopVectorization = "bdcacae8-1622-11e9-2a5c-532679323890"
 NCDatasets = "85f8d34a-cbdd-5861-8df4-14fed0d494ab"
