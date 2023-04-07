@@ -1,8 +1,5 @@
 ## Parameterized convection on a shallow water model
 
-> **Warning**
-> If you are a dissertation committee member you should be checking the [arr_dissertation branch](https://github.com/aramirezreyes/RamirezReyes_ShallowWaterInFPlane/tree/arr_dissertation)
-
 This project implements the convective parameterization of:
 
 Yang, D., and A. P. Ingersoll, 2013: Triggered Convection, Gravity Waves, and the MJO: A Shallow-Water Model. J. Atmos. Sci., 70, 2476–2486, https://doi.org/10.1175/JAS-D-12-0255.1.
@@ -31,13 +28,12 @@ And without rotation
 # To reproduce this simulation (around 5 minutes in GPU and ~1hour with 32 cpu cores):
 
 ## How to setup your environment
-1. First, download the julia language v1.7.1 from https://julialang.org/downloads/
-    Note: Ziwei Wang reports that the example script works on v1.7.2 which is the default julia installed in UChicago's Midawy computer.
+1. First, download the julia language v1.8. The current recomended way to use julia is via [juliaup](https://github.com/JuliaLang/juliaup)
 1. Clone this repository using git. From your bash session you can do:
 
 
     ```bash
-    git clone https://github.com/aramirezreyes/RamirezReyes_ShallowWaterInFPlane --branch main --single-branch
+    git clone https://github.com/aramirezreyes/RamirezReyes_ShallowWaterInFPlane --branch arr_dissertation --single-branch
     ```
 
     This should create a folder called `RamirezReyes_ShallowWaterInFPlane`
@@ -57,17 +53,19 @@ And without rotation
 ## How to run an example
 Assuming you are on the folder RamirezReyes_ShallowWaterInFPlane, use bash to launch julia in the following way:
 
-
 `/path/to/julia/bin/julia --project=@. -t 8 scripts/examples/convective_aggregation_cpu.jl`
 
-This runs the case found in scripts/examples/convective_aggregation_cpu.jl using 8 cores. Ideally you will run it in a bigger computer and you will be able to use 32 cores.
+These run the cases found in scripts/examples/convective_aggregation_cpu.jl using 8 cores. Ideally you will run it in a bigger computer and you will be able to use more cores.
+
+If you have a CUDA-capable GPU you can run a gpu example:
+
+`/path/to/julia/bin/julia --project=@. -t 8 scripts/examples/convective_aggregation_gpu.jl`
+
+Which will run it on the GPU
 
 You can modify the parameters found in there in any text editor.
 
-
 The output will be written in the folder called "data" in NetCDF format
-
-#### If your system has a CUDA capable GPU, you can change the file in  scripts/examples/convective_aggregation_cpu.jl and the code will run much faster
 
 #### Parallel scaling
 For a test run with domain of 500x500 saving the 8 variables every 100 timesteps with timestep of 5 seconds I observed the following performance for a 3 hour simulation. It is unimpressive but it gives an Idea about the scaling.:
