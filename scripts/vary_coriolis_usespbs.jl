@@ -2,10 +2,10 @@
 using DrWatson
 @quickactivate "RamirezReyes_ShallowWaterInFPlane"                                                                                                   
 
-# We pull the parameters of the reference simulation
-# We substitute the Coriolis parameter by a list of coriolist Parameters
-# We create parameters for all each combinations
-# We launch jobs to do simulations
+# 1. We pull the parameters of the reference simulation
+# 2. We substitute the Coriolis parameter by a list of coriolis parameters
+# 3. We create parameters for all each combinations
+# 4. We launch jobs to do simulations
 
 parameter_space = create_reference_experiment()
 parameter_space["f"] = [1e-6, 2e-6, 4e-6, 8e-6, 1e-5, 2e-5, 4e-5, 8e-5]

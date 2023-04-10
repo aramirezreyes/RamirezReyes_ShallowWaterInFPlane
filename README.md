@@ -8,7 +8,7 @@ On the Shallow Water model of Oceananigans.jl. It is currently supposed to work 
 
 It relies in:
 - [Oceananigans.jl](https://github.com/CliMA/Oceananigans.jl) for the model (see website for docs)
-- [Julia Language v1.7.1](https://docs.julialang.org/en/v1.7.1/) for the language (check website for docs), especially [this](https://docs.julialang.org/en/v1.7.1/manual/getting-started/).
+- [Julia Language v1.8.5](https://docs.julialang.org/en/v1.8.5/) for the language (check website for docs), especially [this](https://docs.julialang.org/en/v1.8.5/manual/getting-started/).
 
 It currently includes:
 - Coriolis (f-plane)
